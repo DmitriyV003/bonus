@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
+	"github.com/DmitriyV003/bonus/cmd/gophermart/repository"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/routes/api"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -35,12 +36,14 @@ func (app *App) Start() http.Handler {
 	router.Use(middleware.Compress(5))
 	router.Use(middleware.Heartbeat("/heartbeat"))
 
+	app.Container.Users = repository.NewUserRepository(app.pool)
+
 	privateApiRoutes := routes.Private{
 		Container: app.Container,
 	}
 
 	router.Route("/api", func(r chi.Router) {
-		r.Mount("/", privateApiRoutes.Routes())
+		r.Mount("/", privateApiRoutes.Routes(context.Background()))
 	})
 
 	return router
@@ -80,31 +83,18 @@ func (app *App) connectToDB() (pool *pgxpool.Pool) {
 }
 
 func (app *App) migrate() {
-
-	//parsedDbUrl, _ := url.Parse(container.conf.DatabaseDsn)
-	//cmd := exec.Command("tern", "migrate", "--migrations", "./migrations")
-	//cmd.Env = append(cmd.Env, fmt.Sprintf("DATABASE=%s", strings.Trim(parsedDbUrl.Path, "/")))
-	//cmd.Env = append(cmd.Env, fmt.Sprintf("DATABASE_DSN=%s", container.conf.DatabaseDsn))
-	//out, err := cmd.CombinedOutput()
+	//sql := `CREATE TABLE IF NOT EXISTS metrics(
+	//	id serial PRIMARY KEY,
+	//	name VARCHAR (255) NOT NULL,
+	//	type VARCHAR (255) NOT NULL,
+	//	int_value BIGINT,
+	//	float_value DOUBLE PRECISION
+	//)`
+	//_, err := app.pool.Query(context.Background(), sql)
 	//if err != nil {
-	//	log.Error("Error during migrations: ", err)
+	//	log.Error().Err(err).Msg("Error during migration")
 	//	return
 	//}
 	//
-	//log.Info("Migrating: ", string(out))
-
-	sql := `CREATE TABLE IF NOT EXISTS metrics(
-    	id serial PRIMARY KEY,
-    	name VARCHAR (255) NOT NULL,
-    	type VARCHAR (255) NOT NULL,
-    	int_value BIGINT,
-    	float_value DOUBLE PRECISION
-	)`
-	_, err := app.pool.Query(context.Background(), sql)
-	if err != nil {
-		log.Error().Err(err).Msg("Error during migration")
-		return
-	}
-
-	log.Info().Msgf("Migrating: %s", sql)
+	//log.Info().Msgf("Migrating: %s", sql)
 }
