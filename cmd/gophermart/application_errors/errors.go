@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/go-playground/validator/v10"
+	"github.com/rs/zerolog/log"
 	"net/http"
 )
 
@@ -33,6 +34,7 @@ func WriteHTTPError(w *http.ResponseWriter, status int, errors error) {
 }
 
 func SwitchError(w *http.ResponseWriter, err error) {
+	log.Error().Err(err).Msg("Error occurred")
 	switch {
 	case errors.Is(err, ErrNotFound):
 		WriteHTTPError(w, http.StatusNotFound, nil)
