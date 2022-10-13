@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/models"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/requests"
@@ -14,14 +15,17 @@ type UserService struct {
 	user      *models.User
 }
 
-func NewUserService(container *container.Container) *UserService {
-	return &UserService{container: container}
+func NewUserService(container *container.Container, user *models.User) *UserService {
+	return &UserService{
+		container: container,
+		user:      user,
+	}
 }
 
-func (u *UserService) Create(request *requests.RegistrationRequest) error {
+func (u *UserService) Create(request *requests.RegistrationRequest, jwtSecret string) (*Token, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	user := models.User{
@@ -30,6 +34,21 @@ func (u *UserService) Create(request *requests.RegistrationRequest) error {
 		CreatedAt: time.Now(),
 	}
 	err = u.container.Users.Create(context.Background(), &user)
+	if err != nil {
+		return nil, err
+	}
 
-	return err
+	dbUser, err := u.container.Users.GetByLogin(context.Background(), request.Login)
+	if err != nil {
+		return nil, err
+	}
+
+	authService := NewAuthService(u.container, jwtSecret)
+	token, err := authService.LoginByUser(dbUser)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return token, nil
 }
