@@ -12,16 +12,16 @@ var ErrNotFound = errors.New("not found")
 var ErrInternalServer = errors.New("internal server error")
 var ErrConflict = errors.New("login already busy")
 
-func WriteHTTPError(w *http.ResponseWriter, status int, errors error) {
+func WriteHTTPError(w *http.ResponseWriter, status int, errs error) {
 	(*w).Header().Set("Content-Type", "application/json")
 
-	if errors == nil {
+	if errs == nil {
 		http.Error(*w, http.StatusText(status), status)
 		return
 	}
 
 	errorsMap := map[string]string{}
-	for _, er := range errors.(validator.ValidationErrors) {
+	for _, er := range errs.(validator.ValidationErrors) {
 		errorsMap[er.Field()] = er.Error()
 	}
 
