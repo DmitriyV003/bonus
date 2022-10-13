@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Address     string `env:"ADDRESS"`
 	DatabaseDsn string `env:"DATABASE_DSN"`
+	JwtSecret   string `env:"JWT_SECRET" envDefault:"jvf48g57h348f493fol-9m[=mp634b3p[n-89--fh23498gh4fgj3f4i[g4["`
 }
 
 const defaultAddress = "localhost:8080"

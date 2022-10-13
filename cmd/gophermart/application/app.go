@@ -1,7 +1,8 @@
-package config
+package application
 
 import (
 	"context"
+	"github.com/DmitriyV003/bonus/cmd/gophermart/config"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/repository"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/routes/api"
@@ -16,7 +17,7 @@ import (
 
 type App struct {
 	pool      *pgxpool.Pool
-	Conf      Config
+	Conf      config.Config
 	Container *container.Container
 }
 
@@ -40,6 +41,7 @@ func (app *App) Start() http.Handler {
 
 	privateApiRoutes := routes.Private{
 		Container: app.Container,
+		Conf:      &app.Conf,
 	}
 
 	router.Route("/api", func(r chi.Router) {
