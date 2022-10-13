@@ -9,18 +9,18 @@ import (
 )
 
 func main() {
-	application := application.App{
+	applicationApp := application.App{
 		Conf:      config.Config{},
 		Container: &container.Container{},
 	}
-	application.Config()
+	applicationApp.Config()
 
-	defer application.Close()
+	defer applicationApp.Close()
 
-	log.Info().Msgf("server is starting at %s", application.Conf.Address)
+	log.Info().Msgf("server is starting at %s", applicationApp.Conf.Address)
 	srv := &http.Server{
-		Addr:    application.Conf.Address,
-		Handler: application.Start(),
+		Addr:    applicationApp.Conf.Address,
+		Handler: applicationApp.Start(),
 	}
 
 	if err := srv.ListenAndServe(); err != nil {
