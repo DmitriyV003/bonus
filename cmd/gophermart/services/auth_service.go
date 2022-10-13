@@ -2,9 +2,10 @@ package services
 
 import (
 	"context"
+	"errors"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/models"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
 	"time"
@@ -46,6 +47,19 @@ func (myself *AuthService) Login(login string, password string) (*Token, error) 
 	token, err := myself.generateJwt(user)
 
 	return token, err
+}
+
+func (myself *AuthService) ValidateToken(token string) (bool, error) {
+	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		_, ok := token.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return nil, errors.New("d")
+		}
+
+		return []byte("jvf48g57h348f493fol-9m[=mp634b3p[n-89--fh23498gh4fgj3f4i[g4["), nil
+	})
+
+	return parsedToken.Valid, err
 }
 
 func (myself *AuthService) generateJwt(user *models.User) (*Token, error) {
