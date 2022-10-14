@@ -56,7 +56,7 @@ func (myself *AuthService) ValidateToken(token string) (bool, error) {
 			return nil, errors.New("d")
 		}
 
-		return []byte("jvf48g57h348f493fol-9m[=mp634b3p[n-89--fh23498gh4fgj3f4i[g4["), nil
+		return []byte(myself.secret), nil
 	})
 
 	return parsedToken.Valid, err
