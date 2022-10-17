@@ -6,6 +6,7 @@ import (
 	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/services"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -25,13 +26,29 @@ func AuthMiddleware(container *container.Container, conf *config.Config) func(ne
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
-
-			if isValid {
-				next.ServeHTTP(w, r.WithContext(context.Background()))
-			} else {
+			if !isValid {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
+
+			newToken := services.Token{
+				Value:  token[1],
+				Claims: map[string]interface{}{},
+			}
+			err = authService.ParseTokenWithClaims(&newToken)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			parsedUserId, err := strconv.ParseInt(newToken.Claims["user_id"].(string), 10, 64)
+			user, err := container.Users.GetById(context.Background(), parsedUserId)
+			if err != nil {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
+			next.ServeHTTP(w, r.WithContext(context.WithValue(context.Background(), "user", user)))
 		})
 	}
 }

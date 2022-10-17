@@ -17,7 +17,8 @@ type AuthService struct {
 }
 
 type Token struct {
-	Value string
+	Value  string
+	Claims map[string]interface{}
 }
 
 func NewAuthService(container *container.Container, secret string) *AuthService {
@@ -62,6 +63,19 @@ func (myself *AuthService) ValidateToken(token string) (bool, error) {
 	return parsedToken.Valid, err
 }
 
+func (myself *AuthService) ParseTokenWithClaims(token *Token) error {
+	claims := jwt.MapClaims{}
+	_, err := jwt.ParseWithClaims(token.Value, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(myself.secret), nil
+	})
+	if err != nil {
+		return err
+	}
+
+	token.Claims = claims
+	return nil
+}
+
 func (myself *AuthService) generateJwt(user *models.User) (*Token, error) {
 	token := jwt.New(jwt.SigningMethodHS512)
 
@@ -69,6 +83,7 @@ func (myself *AuthService) generateJwt(user *models.User) (*Token, error) {
 	claims["exp"] = time.Now().Add(24 * 60 * 5 * time.Minute).Unix()
 	claims["iat"] = time.Now().Unix()
 	claims["sub"] = strconv.FormatInt(user.Id, 10)
+	claims["user_id"] = strconv.FormatInt(user.Id, 10)
 	token.Claims = claims
 
 	genToken, err := token.SignedString([]byte(myself.secret))

@@ -59,3 +59,21 @@ func (users *UserRepository) GetByLogin(ctx context.Context, login string) (*mod
 
 	return &user, nil
 }
+
+func (users *UserRepository) GetById(ctx context.Context, id int64) (*models.User, error) {
+	sql := `SELECT id, login, balance, created_at FROM users WHERE id = $1`
+	var user models.User
+
+	row := users.db.QueryRow(ctx, sql, id)
+
+	err := row.Scan(&user.Id, &user.Login, &user.Balance, &user.CreatedAt)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return nil, err
+	}
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, application_errors.ErrNotFound
+	}
+
+	return &user, nil
+}
