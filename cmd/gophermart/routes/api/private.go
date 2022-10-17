@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"context"
 	"fmt"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/config"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
@@ -16,7 +15,7 @@ type Private struct {
 	Conf      *config.Config
 }
 
-func (p *Private) Routes(ctx context.Context) *chi.Mux {
+func (p *Private) Routes() *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Route("/user", func(r chi.Router) {
@@ -24,11 +23,13 @@ func (p *Private) Routes(ctx context.Context) *chi.Mux {
 		r.Post("/login", handlers.LoginHandler(p.Container, p.Conf))
 
 		r.With(middlewares.AuthMiddleware(p.Container, p.Conf)).Group(func(r chi.Router) {
-			//r.Post("/orders", handlers.LoginHandler(p.Container, p.Conf))
+			r.Post("/orders", handlers.CreateOrderHandler(p.Container, p.Conf))
 			r.Get("/test", func(writer http.ResponseWriter, request *http.Request) {
 				fmt.Println("AUTH gone")
+				fmt.Println(request.Context().Value("user"))
 			})
 		})
+
 	})
 
 	return r

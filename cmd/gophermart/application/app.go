@@ -38,6 +38,7 @@ func (app *App) Start() http.Handler {
 	router.Use(middleware.Heartbeat("/heartbeat"))
 
 	app.Container.Users = repository.NewUserRepository(app.pool)
+	app.Container.Orders = repository.NewOrderRepository(app.pool)
 
 	privateApiRoutes := routes.Private{
 		Container: app.Container,
@@ -45,7 +46,7 @@ func (app *App) Start() http.Handler {
 	}
 
 	router.Route("/api", func(r chi.Router) {
-		r.Mount("/", privateApiRoutes.Routes(context.Background()))
+		r.Mount("/", privateApiRoutes.Routes())
 	})
 
 	return router
