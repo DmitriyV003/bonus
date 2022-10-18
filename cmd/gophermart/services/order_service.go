@@ -2,10 +2,11 @@ package services
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/application_errors"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/models"
+	"github.com/DmitriyV003/bonus/cmd/gophermart/policy"
 	"strconv"
 )
 
@@ -23,18 +24,36 @@ func NewOrderService(container *container.Container, order *models.Order, valida
 	}
 }
 
-func (myself *OrderService) Store(orderNumber string) error {
-	orderNum, err := strconv.ParseInt(orderNumber, 10, 64)
+func (myself *OrderService) Store(user *models.User, orderNumber string) (*models.Order, error) {
+	parsedOderNumber, err := strconv.ParseInt(orderNumber, 10, 64)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	isValid := myself.validator.Validate(orderNum)
+	isValid := myself.validator.Validate(parsedOderNumber)
 	if !isValid {
-		return application_errors.ErrInvalidOrderNumber
+		return nil, application_errors.ErrInvalidOrderNumber
 	}
 
-	fmt.Println(context.Background().Value("user"))
+	order, err := myself.container.Orders.GetByNumber(context.Background(), orderNumber)
+	if err != nil && !errors.Is(err, application_errors.ErrNotFound) {
+		return nil, err
+	}
 
-	return nil
+	orderPolicy := policy.NewOrderPolicy(order, user)
+	if order != nil {
+		if orderPolicy.Create() {
+			return nil, application_errors.ErrConflict
+		} else {
+			return nil, application_errors.ErrModelAlreadyCreated
+		}
+	}
+
+	order = models.NewOrder(orderNumber, 0, user)
+	order, err = myself.container.Orders.Create(context.Background(), order)
+	if err != nil {
+		return nil, err
+	}
+
+	return order, nil
 }
