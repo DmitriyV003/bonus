@@ -24,6 +24,8 @@ func (p *Private) Routes() *chi.Mux {
 
 		r.With(middlewares.AuthMiddleware(p.Container, p.Conf)).Group(func(r chi.Router) {
 			r.Post("/orders", handlers.CreateOrderHandler(p.Container))
+			r.Get("/balance", handlers.UserBalanceHandler(p.Container))
+
 			r.Get("/test", func(writer http.ResponseWriter, request *http.Request) {
 				fmt.Println("AUTH gone")
 				fmt.Println(request.Context().Value("user"))
