@@ -39,6 +39,7 @@ func (app *App) Start() http.Handler {
 
 	app.Container.Users = repository.NewUserRepository(app.pool)
 	app.Container.Orders = repository.NewOrderRepository(app.pool)
+	app.Container.Payments = repository.NewPaymentRepository(app.pool)
 
 	privateApiRoutes := routes.Private{
 		Container: app.Container,
