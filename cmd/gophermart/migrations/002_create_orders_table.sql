@@ -1,7 +1,7 @@
 -- Write your migrate up statements here
 CREATE TABLE IF NOT EXISTS orders(
    id SERIAL PRIMARY KEY,
-   number INTEGER NOT NULL,
+   number VARCHAR(255) NOT NULL,
    status VARCHAR(255),
    amount INTEGER,
    user_id INTEGER NOT NULL,
