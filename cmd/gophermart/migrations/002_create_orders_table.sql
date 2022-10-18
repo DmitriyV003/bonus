@@ -1,9 +1,10 @@
 -- Write your migrate up statements here
+CREATE TYPE status AS ENUM('processed', 'processing', 'invalid');
 CREATE TABLE IF NOT EXISTS orders(
    id SERIAL PRIMARY KEY,
    number VARCHAR(255) NOT NULL,
-   status VARCHAR(255),
-   amount INTEGER,
+   status status NOT NULL,
+   amount INTEGER NOT NULL,
    user_id INTEGER NOT NULL,
    created_at TIMESTAMP NULL,
    updated_at TIMESTAMP NULL,
