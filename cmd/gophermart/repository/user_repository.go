@@ -7,6 +7,7 @@ import (
 	"github.com/DmitriyV003/bonus/cmd/gophermart/models"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"time"
 )
 
 type UserRepository struct {
@@ -76,4 +77,15 @@ func (users *UserRepository) GetById(ctx context.Context, id int64) (*models.Use
 	}
 
 	return &user, nil
+}
+
+func (users *UserRepository) UpdateBalance(ctx context.Context, user *models.User) error {
+	sql := `UPDATE users SET balance = $1, updated_at = $2 WHERE id = $3`
+
+	_, err := users.db.Exec(ctx, sql, user.Balance, time.Now(), user.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
