@@ -10,8 +10,9 @@ import (
 
 var ErrNotFound = errors.New("not found")
 var ErrInternalServer = errors.New("internal server error")
-var ErrConflict = errors.New("login already busy")
+var ErrConflict = errors.New("conflict")
 var ErrInvalidOrderNumber = errors.New("invalid order number")
+var ErrModelAlreadyCreated = errors.New("model already created")
 
 func WriteHTTPError(w *http.ResponseWriter, status int, errs error) {
 	(*w).Header().Set("Content-Type", "application/json")
@@ -43,6 +44,8 @@ func SwitchError(w *http.ResponseWriter, err error) {
 		WriteHTTPError(w, http.StatusConflict, nil)
 	case errors.Is(err, ErrInvalidOrderNumber):
 		WriteHTTPError(w, http.StatusUnprocessableEntity, nil)
+	case errors.Is(err, ErrModelAlreadyCreated):
+		(*w).WriteHeader(http.StatusOK)
 	default:
 		WriteHTTPError(w, http.StatusInternalServerError, nil)
 	}
