@@ -12,7 +12,7 @@ import (
 
 func UserOrdersHandler(container *container.Container) http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
-		orderService := services.NewOrderService(container, nil, nil)
+		orderService := services.NewOrderService(container, nil)
 		orders, err := orderService.OrdersByUser(request.Context().Value("user").(*models.User))
 		if err != nil {
 			application_errors.SwitchError(&res, err)
@@ -21,7 +21,7 @@ func UserOrdersHandler(container *container.Container) http.HandlerFunc {
 
 		var ordersToReturn []*resources.OrderResource
 		for _, order := range orders {
-			orderResource := resources.NewOrderResource(order.Number, *order.Status, float64(order.Amount)/10000, order.CreatedAt)
+			orderResource := resources.NewOrderResource(order.Number, order.Status, order.Amount, order.CreatedAt)
 			ordersToReturn = append(ordersToReturn, orderResource)
 		}
 
