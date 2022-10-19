@@ -9,11 +9,11 @@ type OrderResource struct {
 	CreatedAt time.Time `json:"uploaded_at"`
 }
 
-func NewOrderResource(number string, status string, accrual float64, createdAt time.Time) *OrderResource {
+func NewOrderResource(number string, status string, accrual int64, createdAt time.Time) *OrderResource {
 	return &OrderResource{
 		Number:    number,
 		Status:    status,
-		Accrual:   accrual,
+		Accrual:   float64(accrual) / 10000,
 		CreatedAt: createdAt,
 	}
 }
