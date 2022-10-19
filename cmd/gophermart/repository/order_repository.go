@@ -125,3 +125,26 @@ func (orders *OrderRepository) GetByNumber(ctx context.Context, number string) (
 
 	return &order, nil
 }
+
+func (orders *OrderRepository) OrdersByUser(ctx context.Context, user *models.User) ([]*models.Order, error) {
+	sql := `SELECT number, COALESCE(status, ''), amount, created_at FROM orders WHERE user_id = $1`
+	var selectedOrders []*models.Order
+
+	rows, err := orders.db.Query(ctx, sql, user.Id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var order models.Order
+		err = rows.Scan(&order.Number, &order.Status, &order.Amount, &order.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+
+		selectedOrders = append(selectedOrders, &order)
+	}
+
+	return selectedOrders, nil
+}
