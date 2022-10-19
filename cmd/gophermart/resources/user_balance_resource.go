@@ -5,9 +5,11 @@ type UserBalanceResource struct {
 	Withdrawn float64 `json:"withdrawn"`
 }
 
-func NewUserBalanceResource(curr float64, withdrawn float64) *UserBalanceResource {
-	return &UserBalanceResource{
-		Current:   curr,
-		Withdrawn: withdrawn,
+func NewUserBalanceResource(curr int64, withdrawn int64) *UserBalanceResource {
+	resource := UserBalanceResource{
+		Current:   float64(curr) / 10000,
+		Withdrawn: float64(withdrawn) / 10000,
 	}
+
+	return &resource
 }

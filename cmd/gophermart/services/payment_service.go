@@ -4,18 +4,17 @@ import (
 	"context"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
 	"github.com/DmitriyV003/bonus/cmd/gophermart/models"
+	"github.com/rs/zerolog/log"
 	"time"
 )
 
 type PaymentService struct {
 	container *container.Container
-	payment   *models.Payment
 }
 
-func NewPaymentService(container *container.Container, payment *models.Payment) *PaymentService {
+func NewPaymentService(container *container.Container) *PaymentService {
 	return &PaymentService{
 		container: container,
-		payment:   payment,
 	}
 }
 
@@ -39,6 +38,13 @@ func (ps *PaymentService) CreateWithdrawPayment(user *models.User, amount int64,
 	if err != nil {
 		return err
 	}
+	log.Info().Fields(map[string]interface{}{
+		"user_id":          user.Id,
+		"payment_id":       createdPayment.Id,
+		"amount":           createdPayment.Amount,
+		"type":             createdPayment.Type,
+		"transaction_type": createdPayment.TransactionType,
+	}).Msg("Withdraw payment created")
 
 	return nil
 }
@@ -59,10 +65,17 @@ func (ps *PaymentService) CreateAccrualPayment(user *models.User, amount int64, 
 	}
 
 	balanceService := NewBalanceService(ps.container, user)
-	err = balanceService.Withdraw(createdPayment)
+	err = balanceService.Accrual(createdPayment)
 	if err != nil {
 		return err
 	}
+	log.Info().Fields(map[string]interface{}{
+		"user_id":          user.Id,
+		"payment_id":       createdPayment.Id,
+		"amount":           createdPayment.Amount,
+		"type":             createdPayment.Type,
+		"transaction_type": createdPayment.TransactionType,
+	}).Msg("Accrual payment created")
 
 	return nil
 }

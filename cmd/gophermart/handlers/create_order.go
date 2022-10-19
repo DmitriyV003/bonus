@@ -24,8 +24,8 @@ func CreateOrderHandler(container *container.Container) http.HandlerFunc {
 			return
 		}
 
-		orderService := services.NewOrderService(container, nil, services.NewLuhnOrderNumberValidator())
-		order, err := orderService.Store(request.Context().Value("user").(*models.User), string(response))
+		orderService := services.NewOrderService(container, services.NewLuhnOrderNumberValidator())
+		order, err := orderService.Create(request.Context().Value("user").(*models.User), string(response))
 		if err != nil {
 			application_errors.SwitchError(&res, err)
 			return

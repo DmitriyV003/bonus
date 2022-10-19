@@ -20,7 +20,7 @@ func NewOrderRepository(pool *pgxpool.Pool) *OrderRepository {
 }
 
 func (orders *OrderRepository) Create(ctx context.Context, order *models.Order) (*models.Order, error) {
-	sql := `INSERT INTO orders (number, amount, user_id, created_at) VALUES ($1, $2, $3, $4) RETURNING id`
+	sql := `INSERT INTO orders (number, amount, status, user_id, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id`
 
 	//dbUser, err := users.GetByLogin(ctx, user.Login)
 	//if err != nil && !errors.Is(err, application_errors.ErrNotFound) {
@@ -36,7 +36,7 @@ func (orders *OrderRepository) Create(ctx context.Context, order *models.Order) 
 	//}
 
 	var id int64
-	err := orders.db.QueryRow(ctx, sql, order.Number, order.Amount, order.User.Id, order.CreatedAt).Scan(&id)
+	err := orders.db.QueryRow(ctx, sql, order.Number, order.Amount, order.Status, order.User.Id, order.CreatedAt).Scan(&id)
 	if err != nil {
 		return nil, application_errors.ErrInternalServer
 	}
