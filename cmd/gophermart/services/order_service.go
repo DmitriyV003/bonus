@@ -57,3 +57,12 @@ func (myself *OrderService) Store(user *models.User, orderNumber string) (*model
 
 	return order, nil
 }
+
+func (myself *OrderService) OrdersByUser(user *models.User) ([]*models.Order, error) {
+	orders, err := myself.container.Orders.OrdersByUser(context.Background(), user)
+	if err != nil {
+		return nil, err
+	}
+
+	return orders, nil
+}
