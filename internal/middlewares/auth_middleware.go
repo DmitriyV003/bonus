@@ -2,9 +2,9 @@ package middlewares
 
 import (
 	"context"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/config"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/services"
+	"github.com/DmitriyV003/bonus/internal/config"
+	"github.com/DmitriyV003/bonus/internal/container"
+	"github.com/DmitriyV003/bonus/internal/services"
 	"net/http"
 	"strconv"
 	"strings"
@@ -47,6 +47,7 @@ func AuthMiddleware(container *container.Container, conf *config.Config) func(ne
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
+			services.SetLoggedInUser(user)
 
 			next.ServeHTTP(w, r.WithContext(context.WithValue(context.Background(), "user", user)))
 		})

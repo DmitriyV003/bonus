@@ -3,9 +3,9 @@ package services
 import (
 	"context"
 	"fmt"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/models"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/requests"
+	"github.com/DmitriyV003/bonus/internal/container"
+	"github.com/DmitriyV003/bonus/internal/models"
+	"github.com/DmitriyV003/bonus/internal/requests"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -46,8 +46,7 @@ func (u *UserService) Create(request *requests.RegistrationRequest, jwtSecret st
 	authService := NewAuthService(u.container, jwtSecret)
 	token, err := authService.LoginByUser(dbUser)
 	if err != nil {
-		fmt.Println(err)
-		return nil, err
+		return nil, fmt.Errorf("get by login: %w", err)
 	}
 
 	return token, nil

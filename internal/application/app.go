@@ -2,10 +2,10 @@ package application
 
 import (
 	"context"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/config"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/repository"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/routes/api"
+	"github.com/DmitriyV003/bonus/internal/config"
+	"github.com/DmitriyV003/bonus/internal/container"
+	"github.com/DmitriyV003/bonus/internal/repository"
+	"github.com/DmitriyV003/bonus/internal/routes/api"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -21,7 +21,7 @@ type App struct {
 	Container *container.Container
 }
 
-func (app *App) Start() http.Handler {
+func (app *App) CreateHandler() http.Handler {
 	router := chi.NewRouter()
 	app.pool = app.connectToDB()
 
