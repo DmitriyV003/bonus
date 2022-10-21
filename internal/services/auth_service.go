@@ -3,13 +3,23 @@ package services
 import (
 	"context"
 	"errors"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/models"
+	"github.com/DmitriyV003/bonus/internal/container"
+	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
 	"time"
 )
+
+var loggedInUser *models.User
+
+func SetLoggedInUser(user *models.User) {
+	loggedInUser = user
+}
+
+func GetLoggedInUser() *models.User {
+	return loggedInUser
+}
 
 type AuthService struct {
 	container *container.Container

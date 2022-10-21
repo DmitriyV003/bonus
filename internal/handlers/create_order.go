@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/application_errors"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/models"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/services"
+	"github.com/DmitriyV003/bonus/internal/application_errors"
+	"github.com/DmitriyV003/bonus/internal/container"
+	"github.com/DmitriyV003/bonus/internal/models"
+	services2 "github.com/DmitriyV003/bonus/internal/services"
 	"io/ioutil"
 	"net/http"
 )
@@ -19,12 +19,12 @@ func CreateOrderHandler(container *container.Container) http.HandlerFunc {
 		}
 		defer request.Body.Close()
 
-		if string(response) == "" {
+		if len(response) == 0 {
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		orderService := services.NewOrderService(container, services.NewLuhnOrderNumberValidator())
+		orderService := services2.NewOrderService(container, services2.NewLuhnOrderNumberValidator())
 		order, err := orderService.Create(request.Context().Value("user").(*models.User), string(response))
 		if err != nil {
 			application_errors.SwitchError(&res, err)
