@@ -3,11 +3,11 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/application_errors"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/config"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/requests"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/services"
+	"github.com/DmitriyV003/bonus/internal/application_errors"
+	"github.com/DmitriyV003/bonus/internal/config"
+	"github.com/DmitriyV003/bonus/internal/container"
+	"github.com/DmitriyV003/bonus/internal/requests"
+	"github.com/DmitriyV003/bonus/internal/services"
 	"github.com/go-playground/validator/v10"
 	"net/http"
 )

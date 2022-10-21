@@ -2,17 +2,17 @@ package services
 
 import (
 	"context"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/models"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/resources"
+	"github.com/DmitriyV003/bonus/internal/container"
+	models2 "github.com/DmitriyV003/bonus/internal/models"
+	"github.com/DmitriyV003/bonus/internal/resources"
 )
 
 type BalanceService struct {
 	container *container.Container
-	user      *models.User
+	user      *models2.User
 }
 
-func NewBalanceService(container *container.Container, user *models.User) *BalanceService {
+func NewBalanceService(container *container.Container, user *models2.User) *BalanceService {
 	return &BalanceService{
 		container: container,
 		user:      user,
@@ -30,7 +30,7 @@ func (bs *BalanceService) Balance() (*resources.UserBalanceResource, error) {
 	return resource, nil
 }
 
-func (bs *BalanceService) Withdraw(payment *models.Payment) error {
+func (bs *BalanceService) Withdraw(payment *models2.Payment) error {
 	balance := bs.user.Balance
 	bs.user.Balance = balance - payment.Amount
 	err := bs.container.Users.UpdateBalance(context.Background(), bs.user)
@@ -41,7 +41,7 @@ func (bs *BalanceService) Withdraw(payment *models.Payment) error {
 	return nil
 }
 
-func (bs *BalanceService) Accrual(payment *models.Payment) error {
+func (bs *BalanceService) Accrual(payment *models2.Payment) error {
 	balance := bs.user.Balance
 	bs.user.Balance = balance + payment.Amount
 	err := bs.container.Users.UpdateBalance(context.Background(), bs.user)

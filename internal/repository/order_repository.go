@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/application_errors"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/models"
+	"github.com/DmitriyV003/bonus/internal/application_errors"
+	models2 "github.com/DmitriyV003/bonus/internal/models"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -19,7 +19,7 @@ func NewOrderRepository(pool *pgxpool.Pool) *OrderRepository {
 	}
 }
 
-func (orders *OrderRepository) Create(ctx context.Context, order *models.Order) (*models.Order, error) {
+func (orders *OrderRepository) Create(ctx context.Context, order *models2.Order) (*models2.Order, error) {
 	sql := `INSERT INTO orders (number, amount, status, user_id, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id`
 
 	//dbUser, err := users.GetByLogin(ctx, user.Login)
@@ -49,7 +49,7 @@ func (orders *OrderRepository) Create(ctx context.Context, order *models.Order) 
 	return order, nil
 }
 
-func (orders *OrderRepository) GetByIdWithUser(ctx context.Context, id int64) (*models.Order, error) {
+func (orders *OrderRepository) GetByIdWithUser(ctx context.Context, id int64) (*models2.Order, error) {
 	sql := `SELECT 
        orders.id, 
        orders.number,
@@ -62,8 +62,8 @@ func (orders *OrderRepository) GetByIdWithUser(ctx context.Context, id int64) (*
        u.balance,
        u.created_at, 
        u.updated_at FROM orders JOIN users u on u.id = orders.user_id WHERE orders.id = $1`
-	var user models.User
-	var order models.Order
+	var user models2.User
+	var order models2.Order
 
 	row := orders.db.QueryRow(ctx, sql, id)
 	err := row.Scan(
@@ -91,7 +91,7 @@ func (orders *OrderRepository) GetByIdWithUser(ctx context.Context, id int64) (*
 	return &order, nil
 }
 
-func (orders *OrderRepository) GetByNumber(ctx context.Context, number string) (*models.Order, error) {
+func (orders *OrderRepository) GetByNumber(ctx context.Context, number string) (*models2.Order, error) {
 	sql := `SELECT 
        orders.id, 
        orders.number,
@@ -101,8 +101,8 @@ func (orders *OrderRepository) GetByNumber(ctx context.Context, number string) (
        orders.created_at, 
        orders.updated_at
        FROM orders WHERE orders.number = $1`
-	var order models.Order
-	var user models.User
+	var order models2.Order
+	var user models2.User
 
 	row := orders.db.QueryRow(ctx, sql, number)
 	err := row.Scan(
@@ -126,9 +126,9 @@ func (orders *OrderRepository) GetByNumber(ctx context.Context, number string) (
 	return &order, nil
 }
 
-func (orders *OrderRepository) OrdersByUser(ctx context.Context, user *models.User) ([]*models.Order, error) {
+func (orders *OrderRepository) OrdersByUser(ctx context.Context, user *models2.User) ([]*models2.Order, error) {
 	sql := `SELECT number, COALESCE(status, ''), amount, created_at FROM orders WHERE user_id = $1`
-	var selectedOrders []*models.Order
+	var selectedOrders []*models2.Order
 
 	rows, err := orders.db.Query(ctx, sql, user.Id)
 	if err != nil {
@@ -137,7 +137,7 @@ func (orders *OrderRepository) OrdersByUser(ctx context.Context, user *models.Us
 	defer rows.Close()
 
 	for rows.Next() {
-		var order models.Order
+		var order models2.Order
 		err = rows.Scan(&order.Number, &order.Status, &order.Amount, &order.CreatedAt)
 		if err != nil {
 			return nil, err
