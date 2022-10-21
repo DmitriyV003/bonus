@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/application_errors"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/models"
+	"github.com/DmitriyV003/bonus/internal/application_errors"
+	models2 "github.com/DmitriyV003/bonus/internal/models"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -20,7 +20,7 @@ func NewPaymentRepository(pool *pgxpool.Pool) *PaymentRepository {
 	}
 }
 
-func (payments *PaymentRepository) Create(ctx context.Context, payment *models.Payment) (*models.Payment, error) {
+func (payments *PaymentRepository) Create(ctx context.Context, payment *models2.Payment) (*models2.Payment, error) {
 	sql := `INSERT INTO payments (
     	user_id, 
         type, 
@@ -53,7 +53,7 @@ func (payments *PaymentRepository) Create(ctx context.Context, payment *models.P
 	return payment, nil
 }
 
-func (payments *PaymentRepository) GetByIdWithUser(ctx context.Context, id int64) (*models.Payment, error) {
+func (payments *PaymentRepository) GetByIdWithUser(ctx context.Context, id int64) (*models2.Payment, error) {
 	sql := `SELECT 
        p.id, 
        p.type, 
@@ -69,8 +69,8 @@ func (payments *PaymentRepository) GetByIdWithUser(ctx context.Context, id int64
        u.updated_at
 	FROM payments as p LEFT JOIN users u on u.id = p.user_id WHERE p.id = $1`
 
-	var payment models.Payment
-	var user models.User
+	var payment models2.Payment
+	var user models2.User
 
 	row := payments.db.QueryRow(ctx, sql, id)
 
@@ -101,7 +101,7 @@ func (payments *PaymentRepository) GetByIdWithUser(ctx context.Context, id int64
 	return &payment, nil
 }
 
-func (payments *PaymentRepository) WithdrawnAmountByUser(ctx context.Context, user *models.User) (int64, error) {
+func (payments *PaymentRepository) WithdrawnAmountByUser(ctx context.Context, user *models2.User) (int64, error) {
 	sql := `SELECT COALESCE(SUM(amount), 0) FROM payments WHERE user_id = $1 AND type = 'withdraw'`
 
 	var amount int64

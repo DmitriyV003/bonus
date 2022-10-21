@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/DmitriyV003/bonus/cmd/gophermart/application"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/config"
-	"github.com/DmitriyV003/bonus/cmd/gophermart/container"
+	"github.com/DmitriyV003/bonus/internal/application"
+	"github.com/DmitriyV003/bonus/internal/config"
+	"github.com/DmitriyV003/bonus/internal/container"
 	"github.com/rs/zerolog/log"
 	"net/http"
 )
@@ -20,7 +20,7 @@ func main() {
 	log.Info().Msgf("server is starting at %s", applicationApp.Conf.Address)
 	srv := &http.Server{
 		Addr:    applicationApp.Conf.Address,
-		Handler: applicationApp.Start(),
+		Handler: applicationApp.CreateHandler(),
 	}
 
 	if err := srv.ListenAndServe(); err != nil {
