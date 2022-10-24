@@ -28,10 +28,10 @@ type OrderDetailsResponse struct {
 	Amount float64 `json:"accrual,omitempty"`
 }
 
-func NewBonusClient() *BonusClient {
+func NewBonusClient(url string) *BonusClient {
 	return &BonusClient{
 		client: &http.Client{},
-		url:    "http://localhost:8080",
+		url:    fmt.Sprintf("http://%s", url),
 	}
 }
 

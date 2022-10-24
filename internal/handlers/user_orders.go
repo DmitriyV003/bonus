@@ -12,7 +12,7 @@ import (
 
 func UserOrdersHandler(container *container.Container) http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
-		orderService := services.NewOrderService(container, nil)
+		orderService := services.NewOrderService(container, nil, nil)
 		orders, err := orderService.OrdersByUser(request.Context().Value("user").(*models.User))
 		if err != nil {
 			application_errors.SwitchError(&res, err)
