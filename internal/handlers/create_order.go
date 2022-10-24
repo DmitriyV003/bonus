@@ -32,7 +32,7 @@ func (h *CreateOrderHandler) Handle() http.HandlerFunc {
 			return
 		}
 
-		order, err := h.orderService.Create(services.GetLoggedInUser(), string(response))
+		order, err := h.orderService.Create(request.Context(), services.GetLoggedInUser(), string(response))
 		if err != nil {
 			application_errors.SwitchError(&res, err)
 			return

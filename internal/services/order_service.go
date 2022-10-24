@@ -38,7 +38,7 @@ func NewOrderService(
 	}
 }
 
-func (myself *OrderService) Create(user *models.User, orderNumber string) (*models.Order, error) {
+func (myself *OrderService) Create(ctx context.Context, user *models.User, orderNumber string) (*models.Order, error) {
 	parsedOderNumber, err := strconv.ParseInt(orderNumber, 10, 64)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (myself *OrderService) Create(user *models.User, orderNumber string) (*mode
 		return nil, application_errors.ErrInvalidOrderNumber
 	}
 
-	order, err := myself.orders.GetByNumber(context.Background(), orderNumber)
+	order, err := myself.orders.GetByNumber(ctx, orderNumber)
 	if err != nil && !errors.Is(err, application_errors.ErrNotFound) {
 		return nil, err
 	}
@@ -64,12 +64,12 @@ func (myself *OrderService) Create(user *models.User, orderNumber string) (*mode
 	}
 
 	order = models.NewOrder(orderNumber, models.NewStatus, 0, user)
-	order, err = myself.orders.Create(context.Background(), order)
+	order, err = myself.orders.Create(ctx, order)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create order in db: %w", err)
 	}
 
-	err = myself.sendAndUpdateOrder(context.Background(), user, order)
+	err = myself.sendAndUpdateOrder(ctx, user, order)
 	if err != nil {
 		return nil, fmt.Errorf("unable to update order: %w", err)
 	}
