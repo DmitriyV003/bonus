@@ -35,18 +35,18 @@ func (u *UserService) Create(request *requests.RegistrationRequest, jwtSecret st
 	}
 	err = u.container.Users.Create(context.Background(), &user)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to create user in db: %w", err)
 	}
 
 	dbUser, err := u.container.Users.GetByLogin(context.Background(), request.Login)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error to get user by login: %w", err)
 	}
 
 	authService := NewAuthService(u.container, jwtSecret)
 	token, err := authService.LoginByUser(dbUser)
 	if err != nil {
-		return nil, fmt.Errorf("get by login: %w", err)
+		return nil, fmt.Errorf("login user programmly: %w", err)
 	}
 
 	return token, nil
