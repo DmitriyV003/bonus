@@ -2,6 +2,7 @@ package routes
 
 import (
 	"fmt"
+	"github.com/DmitriyV003/bonus/internal/clients"
 	"github.com/DmitriyV003/bonus/internal/config"
 	"github.com/DmitriyV003/bonus/internal/container"
 	"github.com/DmitriyV003/bonus/internal/handlers"
@@ -24,7 +25,7 @@ func (p *Private) Routes() *chi.Mux {
 		r.Post("/login", handlers.LoginHandler(p.Container, p.Conf))
 
 		r.With(middlewares.AuthMiddleware(p.Container, p.Conf)).Group(func(r chi.Router) {
-			r.Post("/orders", handlers.CreateOrderHandler(p.Container))
+			r.Post("/orders", handlers.CreateOrderHandler(p.Container, clients.NewBonusClient(p.Conf.AccrualAddress)))
 			r.Get("/orders", handlers.UserOrdersHandler(p.Container))
 			r.Get("/balance", handlers.UserBalanceHandler(p.Container))
 

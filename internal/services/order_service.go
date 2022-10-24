@@ -13,14 +13,20 @@ import (
 )
 
 type OrderService struct {
-	container *container.Container
-	validator OrderValidator
+	container   *container.Container
+	validator   OrderValidator
+	bonusClient *clients.BonusClient
 }
 
-func NewOrderService(container *container.Container, validator OrderValidator) *OrderService {
+func NewOrderService(
+	container *container.Container,
+	validator OrderValidator,
+	bonusClient *clients.BonusClient,
+) *OrderService {
 	return &OrderService{
-		container: container,
-		validator: validator,
+		container:   container,
+		validator:   validator,
+		bonusClient: bonusClient,
 	}
 }
 
@@ -49,13 +55,12 @@ func (myself *OrderService) Create(user *models.User, orderNumber string) (*mode
 		}
 	}
 
-	bonusClient := clients.NewBonusClient()
-	_, err = bonusClient.CreateOrder(orderNumber)
+	_, err = myself.bonusClient.CreateOrder(orderNumber)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create order in black box: %w", err)
 	}
 
-	orderDetails, err := bonusClient.GetOrderDetails(orderNumber)
+	orderDetails, err := myself.bonusClient.GetOrderDetails(orderNumber)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get order details: %w", err)
 	}
