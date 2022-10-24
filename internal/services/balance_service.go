@@ -2,38 +2,38 @@ package services
 
 import (
 	"context"
-	"github.com/DmitriyV003/bonus/internal/container"
 	"github.com/DmitriyV003/bonus/internal/models"
+	"github.com/DmitriyV003/bonus/internal/repository"
 	"github.com/DmitriyV003/bonus/internal/resources"
 )
 
 type BalanceService struct {
-	container *container.Container
-	user      *models.User
+	payments *repository.PaymentRepository
+	users    *repository.UserRepository
 }
 
-func NewBalanceService(container *container.Container, user *models.User) *BalanceService {
+func NewBalanceService(payments *repository.PaymentRepository, users *repository.UserRepository) *BalanceService {
 	return &BalanceService{
-		container: container,
-		user:      user,
+		payments: payments,
+		users:    users,
 	}
 }
 
-func (bs *BalanceService) Balance() (*resources.UserBalanceResource, error) {
-	withdrawn, err := bs.container.Payments.WithdrawnAmountByUser(context.Background(), bs.user)
+func (bs *BalanceService) Balance(user *models.User) (*resources.UserBalanceResource, error) {
+	withdrawn, err := bs.payments.WithdrawnAmountByUser(context.Background(), user)
 	if err != nil {
 		return nil, err
 	}
 
-	resource := resources.NewUserBalanceResource(bs.user.Balance, withdrawn)
+	resource := resources.NewUserBalanceResource(user.Balance, withdrawn)
 
 	return resource, nil
 }
 
-func (bs *BalanceService) Withdraw(payment *models.Payment) error {
-	balance := bs.user.Balance
-	bs.user.Balance = balance - payment.Amount
-	err := bs.container.Users.UpdateBalance(context.Background(), bs.user)
+func (bs *BalanceService) Withdraw(payment *models.Payment, user *models.User) error {
+	balance := user.Balance
+	user.Balance = balance - payment.Amount
+	err := bs.users.UpdateBalance(context.Background(), user)
 	if err != nil {
 		return err
 	}
@@ -41,10 +41,10 @@ func (bs *BalanceService) Withdraw(payment *models.Payment) error {
 	return nil
 }
 
-func (bs *BalanceService) Accrual(payment *models.Payment) error {
-	balance := bs.user.Balance
-	bs.user.Balance = balance + payment.Amount
-	err := bs.container.Users.UpdateBalance(context.Background(), bs.user)
+func (bs *BalanceService) Accrual(payment *models.Payment, user *models.User) error {
+	balance := user.Balance
+	user.Balance = balance + payment.Amount
+	err := bs.users.UpdateBalance(context.Background(), user)
 	if err != nil {
 		return err
 	}

@@ -3,16 +3,21 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/DmitriyV003/bonus/internal/application_errors"
-	"github.com/DmitriyV003/bonus/internal/container"
-	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"net/http"
 )
 
-func UserBalanceHandler(container *container.Container) http.HandlerFunc {
+type UserBalanceHandler struct {
+	balanceService *services.BalanceService
+}
+
+func NewUserBalanceHandler(balanceService *services.BalanceService) *UserBalanceHandler {
+	return &UserBalanceHandler{balanceService: balanceService}
+}
+
+func (h *UserBalanceHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
-		userService := services.NewBalanceService(container, request.Context().Value("user").(*models.User))
-		resource, err := userService.Balance()
+		resource, err := h.balanceService.Balance(services.GetLoggedInUser())
 		if err != nil {
 			application_errors.SwitchError(&res, err)
 			return
