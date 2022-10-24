@@ -152,3 +152,39 @@ func (orders *OrderRepository) OrdersByUser(ctx context.Context, user *models.Us
 
 	return selectedOrders, nil
 }
+
+func (orders *OrderRepository) AllPending(ctx context.Context) ([]*models.Order, error) {
+	sql := `SELECT id, number, user_id, status, created_at FROM orders WHERE status = $1 OR status = $2`
+	countSql := `SELECT count(*) as count FROM orders WHERE status = $1 OR status = $2`
+	var count int64
+
+	err := orders.db.QueryRow(ctx, countSql, models.NewStatus, models.ProcessingStatus).Scan(&count)
+	if err != nil {
+		return nil, fmt.Errorf("error to get pending orders: %w", err)
+	}
+
+	if count == 0 {
+		return make([]*models.Order, 0), nil
+	}
+
+	rows, err := orders.db.Query(ctx, sql, models.NewStatus, models.ProcessingStatus)
+	if err != nil {
+		return nil, fmt.Errorf("error to get pending orders: %w", err)
+	}
+	defer rows.Close()
+
+	selectedOrders := make([]*models.Order, 0, count)
+	for rows.Next() {
+		var order models.Order
+		user := models.User{}
+		err = rows.Scan(&order.Id, &order.Number, &user.Id, &order.Status, &order.CreatedAt)
+		if err != nil {
+			return nil, fmt.Errorf("error to scan pending orders: %w", err)
+		}
+		order.User = &user
+
+		selectedOrders = append(selectedOrders, &order)
+	}
+
+	return selectedOrders, nil
+}
