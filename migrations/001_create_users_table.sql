@@ -1,4 +1,3 @@
--- Write your migrate up statements here
 CREATE TABLE IF NOT EXISTS users(
     id serial PRIMARY KEY,
     login VARCHAR (255) NOT NULL UNIQUE,
