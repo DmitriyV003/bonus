@@ -31,7 +31,7 @@ type OrderDetailsResponse struct {
 func NewBonusClient(url string) *BonusClient {
 	return &BonusClient{
 		client: &http.Client{},
-		url:    fmt.Sprintf("http://%s", url),
+		url:    url,
 	}
 }
 

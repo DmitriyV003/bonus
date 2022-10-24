@@ -39,7 +39,7 @@ func CreateOrderHandler(container *container.Container, bonusClient *clients.Bon
 		}
 
 		res.Header().Set("Content-Type", "application/json")
-		res.Write(data)
 		res.WriteHeader(http.StatusAccepted)
+		res.Write(data)
 	}
 }
