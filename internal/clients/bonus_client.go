@@ -53,7 +53,9 @@ func (bc *BonusClient) CreateOrder(orderNumber string) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Info().Msgf("order created in black box: ", res.Status)
+	log.Info().Fields(map[string]interface{}{
+		"response": res,
+	}).Msgf("order created in black box: ", res.Status)
 
 	return &Response{Code: res.StatusCode}, nil
 }
@@ -76,6 +78,9 @@ func (bc *BonusClient) GetOrderDetails(orderNumber string) (*OrderDetailsRespons
 	if err != nil {
 		return nil, err
 	}
+	log.Info().Fields(map[string]interface{}{
+		"response": body,
+	}).Msg("Order details from service")
 
 	return &response, nil
 }
