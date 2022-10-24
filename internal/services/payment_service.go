@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 	"github.com/DmitriyV003/bonus/internal/container"
-	models2 "github.com/DmitriyV003/bonus/internal/models"
+	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/rs/zerolog/log"
 	"time"
 )
@@ -18,10 +18,10 @@ func NewPaymentService(container *container.Container) *PaymentService {
 	}
 }
 
-func (ps *PaymentService) CreateWithdrawPayment(user *models2.User, amount int64, orderNumber string) error {
-	payment := models2.Payment{
-		Type:            models2.WITHDRAW_TYPE,
-		TransactionType: models2.CREDIT,
+func (ps *PaymentService) CreateWithdrawPayment(user *models.User, amount int64, orderNumber string) error {
+	payment := models.Payment{
+		Type:            models.WITHDRAW_TYPE,
+		TransactionType: models.CREDIT,
 		OrderNumber:     orderNumber,
 		Amount:          amount,
 		User:            user,
@@ -49,10 +49,10 @@ func (ps *PaymentService) CreateWithdrawPayment(user *models2.User, amount int64
 	return nil
 }
 
-func (ps *PaymentService) CreateAccrualPayment(user *models2.User, amount int64, orderNumber string) error {
-	payment := models2.Payment{
-		Type:            models2.ACCRUAL_TYPE,
-		TransactionType: models2.DEBIT,
+func (ps *PaymentService) CreateAccrualPayment(user *models.User, amount int64, orderNumber string) error {
+	payment := models.Payment{
+		Type:            models.ACCRUAL_TYPE,
+		TransactionType: models.DEBIT,
 		OrderNumber:     orderNumber,
 		Amount:          amount,
 		User:            user,
@@ -80,7 +80,7 @@ func (ps *PaymentService) CreateAccrualPayment(user *models2.User, amount int64,
 	return nil
 }
 
-func (ps *PaymentService) create(payment *models2.Payment) (*models2.Payment, error) {
+func (ps *PaymentService) create(payment *models.Payment) (*models.Payment, error) {
 	createdPayment, err := ps.container.Payments.Create(context.Background(), payment)
 	if err != nil {
 		return nil, err

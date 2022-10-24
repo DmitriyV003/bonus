@@ -13,6 +13,7 @@ var ErrInternalServer = errors.New("internal server error")
 var ErrConflict = errors.New("conflict")
 var ErrInvalidOrderNumber = errors.New("invalid order number")
 var ErrModelAlreadyCreated = errors.New("model already created")
+var ErrLowUserABalance = errors.New("low user balance")
 
 func WriteHTTPError(w *http.ResponseWriter, status int, errs error) {
 	(*w).Header().Set("Content-Type", "application/json")
@@ -46,6 +47,8 @@ func SwitchError(w *http.ResponseWriter, err error) {
 		WriteHTTPError(w, http.StatusUnprocessableEntity, nil)
 	case errors.Is(err, ErrModelAlreadyCreated):
 		(*w).WriteHeader(http.StatusOK)
+	case errors.Is(err, ErrLowUserABalance):
+		(*w).WriteHeader(http.StatusPaymentRequired)
 	default:
 		WriteHTTPError(w, http.StatusInternalServerError, nil)
 	}
