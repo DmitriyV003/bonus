@@ -4,15 +4,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/DmitriyV003/bonus/internal/application_errors"
-	"github.com/DmitriyV003/bonus/internal/config"
-	"github.com/DmitriyV003/bonus/internal/container"
 	"github.com/DmitriyV003/bonus/internal/requests"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"github.com/go-playground/validator/v10"
 	"net/http"
 )
 
-func LoginHandler(container *container.Container, conf *config.Config) http.HandlerFunc {
+type LoginHandler struct {
+	authService *services.AuthService
+}
+
+func NewLoginHandler(authService *services.AuthService) *LoginHandler {
+	return &LoginHandler{
+		authService: authService,
+	}
+}
+
+func (h LoginHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		var loginRequest requests.LoginRequest
 
@@ -28,8 +36,7 @@ func LoginHandler(container *container.Container, conf *config.Config) http.Hand
 			return
 		}
 
-		service := services.NewAuthService(container, conf.JwtSecret)
-		token, err := service.Login(loginRequest.Login, loginRequest.Password)
+		token, err := h.authService.Login(loginRequest.Login, loginRequest.Password)
 		if err != nil {
 			application_errors.SwitchError(&res, err)
 			return

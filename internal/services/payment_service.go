@@ -2,19 +2,23 @@ package services
 
 import (
 	"context"
-	"github.com/DmitriyV003/bonus/internal/container"
 	"github.com/DmitriyV003/bonus/internal/models"
+	"github.com/DmitriyV003/bonus/internal/repository"
 	"github.com/rs/zerolog/log"
 	"time"
 )
 
 type PaymentService struct {
-	container *container.Container
+	payments       *repository.PaymentRepository
+	users          *repository.UserRepository
+	balanceService *BalanceService
 }
 
-func NewPaymentService(container *container.Container) *PaymentService {
+func NewPaymentService(payments *repository.PaymentRepository, users *repository.UserRepository, balanceService *BalanceService) *PaymentService {
 	return &PaymentService{
-		container: container,
+		payments:       payments,
+		users:          users,
+		balanceService: balanceService,
 	}
 }
 
@@ -33,8 +37,7 @@ func (ps *PaymentService) CreateWithdrawPayment(user *models.User, amount int64,
 		return err
 	}
 
-	balanceService := NewBalanceService(ps.container, user)
-	err = balanceService.Withdraw(createdPayment)
+	err = ps.balanceService.Withdraw(createdPayment, user)
 	if err != nil {
 		return err
 	}
@@ -64,8 +67,7 @@ func (ps *PaymentService) CreateAccrualPayment(user *models.User, amount int64, 
 		return err
 	}
 
-	balanceService := NewBalanceService(ps.container, user)
-	err = balanceService.Accrual(createdPayment)
+	err = ps.balanceService.Accrual(createdPayment, user)
 	if err != nil {
 		return err
 	}
@@ -81,7 +83,7 @@ func (ps *PaymentService) CreateAccrualPayment(user *models.User, amount int64, 
 }
 
 func (ps *PaymentService) create(payment *models.Payment) (*models.Payment, error) {
-	createdPayment, err := ps.container.Payments.Create(context.Background(), payment)
+	createdPayment, err := ps.payments.Create(context.Background(), payment)
 	if err != nil {
 		return nil, err
 	}

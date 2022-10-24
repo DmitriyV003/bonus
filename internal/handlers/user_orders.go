@@ -3,17 +3,24 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/DmitriyV003/bonus/internal/application_errors"
-	"github.com/DmitriyV003/bonus/internal/container"
-	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/DmitriyV003/bonus/internal/resources"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"net/http"
 )
 
-func UserOrdersHandler(container *container.Container) http.HandlerFunc {
+type UserOrdersHandler struct {
+	orderService *services.OrderService
+}
+
+func NewUserOrdersHandler(orderService *services.OrderService) *UserOrdersHandler {
+	return &UserOrdersHandler{
+		orderService: orderService,
+	}
+}
+
+func (h *UserOrdersHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
-		orderService := services.NewOrderService(container, nil, nil)
-		orders, err := orderService.OrdersByUser(request.Context().Value("user").(*models.User))
+		orders, err := h.orderService.OrdersByUser(services.GetLoggedInUser())
 		if err != nil {
 			application_errors.SwitchError(&res, err)
 			return
