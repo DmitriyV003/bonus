@@ -1,4 +1,4 @@
-CREATE TYPE status AS ENUM('processed', 'processing', 'invalid', 'new');
+CREATE TYPE status AS ENUM('PROCESSED', 'PROCESSING', 'INVALID', 'REGISTERED', 'NEW');
 
 CREATE TABLE IF NOT EXISTS orders(
    id BIGSERIAL PRIMARY KEY,
