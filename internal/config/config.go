@@ -8,7 +8,7 @@ import (
 
 type Config struct {
 	Address     string `env:"ADDRESS"`
-	DatabaseDsn string `env:"DATABASE_DSN"`
+	DatabaseUri string `env:"DATABASE_URI"`
 	JwtSecret   string `env:"JWT_SECRET" envDefault:"jvf48g57h348f493fol-9m[=mp634b3p[n-89--fh23498gh4fgj3f4i[g4["`
 }
 
@@ -22,14 +22,14 @@ func (conf *Config) ParseEnv() {
 	}
 
 	address := flag.String("a", defaultAddress, "Server address")
-	databaseDsn := flag.String("d", defaultDatabaseDsn, "connection string to database")
+	databaseUri := flag.String("d", defaultDatabaseDsn, "connection string to database")
 	flag.PrintDefaults()
 	flag.Parse()
 
 	if conf.Address == "" {
 		conf.Address = *address
 	}
-	if conf.DatabaseDsn == "" {
-		conf.DatabaseDsn = *databaseDsn
+	if conf.DatabaseUri == "" {
+		conf.DatabaseUri = *databaseUri
 	}
 }
