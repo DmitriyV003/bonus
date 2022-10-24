@@ -13,7 +13,7 @@ type Config struct {
 	JwtSecret      string `env:"JWT_SECRET" envDefault:"jvf48g57h348f493fol-9m[=mp634b3p[n-89--fh23498gh4fgj3f4i[g4["`
 }
 
-const defaultAddress = "localhost:8081"
+const defaultAddress = "localhost:8080"
 const defaultAccrualSystemAddress = "localhost:8080"
 const defaultDatabaseDsn = ""
 
@@ -28,6 +28,10 @@ func (conf *Config) ParseEnv() {
 	accrualAddress := flag.String("r", defaultAccrualSystemAddress, "accrual address")
 	flag.PrintDefaults()
 	flag.Parse()
+
+	log.Info().Fields(map[string]interface{}{
+		"defaultAccrualSystemAddress": *accrualAddress,
+	}).Msg("Env")
 
 	if conf.Address == "" {
 		conf.Address = *address
