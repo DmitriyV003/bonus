@@ -38,7 +38,7 @@ func (h *RegisterHandler) Handle(container *container.Container, conf *config.Co
 			return
 		}
 
-		service := services.NewUserService(container, nil)
+		service := services.NewUserService(container, nil, nil, nil)
 		token, err := service.Create(&regRequest, conf.JwtSecret)
 		if err != nil {
 			application_errors.SwitchError(&res, err)

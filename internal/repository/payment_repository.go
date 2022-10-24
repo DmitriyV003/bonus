@@ -113,3 +113,29 @@ func (payments *PaymentRepository) WithdrawnAmountByUser(ctx context.Context, us
 
 	return amount, nil
 }
+
+func (payments *PaymentRepository) GetWithdrawsByUser(ctx context.Context, user *models.User) ([]*models.Payment, error) {
+	sql := `SELECT id, order_number, amount, created_at 
+		FROM payments 
+		WHERE user_id = $1 AND type = $2 AND transaction_type = $3
+		ORDER BY created_at`
+	var selectedPayments []*models.Payment
+
+	rows, err := payments.db.Query(ctx, sql, user.Id, models.WITHDRAW_TYPE, models.CREDIT)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var payment models.Payment
+		err = rows.Scan(&payment.Id, &payment.OrderNumber, &payment.Amount, &payment.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+
+		selectedPayments = append(selectedPayments, &payment)
+	}
+
+	return selectedPayments, nil
+}
