@@ -53,7 +53,7 @@ func (bc *BonusClient) CreateOrder(orderNumber string) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Info().Msgf("order created in black box: %d", res.Status)
+	log.Info().Msgf("order created in black box: ", res.Status)
 
 	return &Response{Code: res.StatusCode}, nil
 }
