@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/rs/zerolog/log"
+	"time"
 )
 
 type OrderRepository struct {
@@ -39,6 +40,17 @@ func (orders *OrderRepository) Create(ctx context.Context, order *models.Order) 
 	}
 
 	return order, nil
+}
+
+func (orders *OrderRepository) UpdateById(ctx context.Context, order *models.Order) error {
+	sql := `UPDATE orders SET amount = $1, status = $2, updated_at = $3 WHERE id = $4`
+
+	_, err := orders.db.Exec(ctx, sql, order.Amount, order.Status, time.Now(), order.Id)
+	if err != nil {
+		return fmt.Errorf("unable to update order in db: %w", err)
+	}
+
+	return nil
 }
 
 func (orders *OrderRepository) GetByIdWithUser(ctx context.Context, id int64) (*models.Order, error) {
