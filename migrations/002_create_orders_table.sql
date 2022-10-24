@@ -1,5 +1,5 @@
--- Write your migrate up statements here
 CREATE TYPE status AS ENUM('processed', 'processing', 'invalid', 'new');
+
 CREATE TABLE IF NOT EXISTS orders(
    id BIGSERIAL PRIMARY KEY,
    number VARCHAR(255) NOT NULL UNIQUE,
