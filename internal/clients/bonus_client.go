@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/DmitriyV003/bonus/internal/application_errors"
 	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
@@ -45,13 +46,13 @@ func (bc *BonusClient) CreateOrder(orderNumber string) (*Response, error) {
 	request, err := http.NewRequest(http.MethodPost, bc.getUrl("api/orders"), bytes.NewBuffer(byteData))
 	if err != nil {
 		fmt.Println(err)
-		return nil, fmt.Errorf("unable to create new request [GET] to /api/orders/: %w", err)
+		return nil, fmt.Errorf("unable to create new request: %w", err)
 	}
 	request.Header.Add("Content-Type", "application/json")
 
 	res, err := bc.client.Do(request)
 	if err != nil {
-		return nil, fmt.Errorf("unable to send request [POST] to /api/orders/: %w", err)
+		return nil, fmt.Errorf("unable to send request [POST] to /api/orders/: %w", application_errors.ErrServiceUnavailable)
 	}
 	log.Info().Msgf("order created in black box: ", res.Status)
 
@@ -63,7 +64,7 @@ func (bc *BonusClient) GetOrderDetails(orderNumber string) (*OrderDetailsRespons
 
 	res, err := bc.client.Do(request)
 	if err != nil {
-		return nil, fmt.Errorf("unable to send request [GET] to /api/orders/: %w", err)
+		return nil, fmt.Errorf("unable to send request [GET] to /api/orders/: %w", application_errors.ErrServiceUnavailable)
 	}
 
 	var response OrderDetailsResponse
