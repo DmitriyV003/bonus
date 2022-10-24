@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/DmitriyV003/bonus/internal/application_errors"
 	"github.com/DmitriyV003/bonus/internal/clients"
 	"github.com/DmitriyV003/bonus/internal/container"
@@ -42,34 +43,34 @@ func (myself *OrderService) Create(user *models.User, orderNumber string) (*mode
 	orderPolicy := policy.NewOrderPolicy(order, user)
 	if order != nil {
 		if orderPolicy.Create() {
-			return nil, application_errors.ErrModelAlreadyCreated
+			return nil, fmt.Errorf("order already accepted: %w", application_errors.ErrModelAlreadyCreated)
 		} else {
-			return nil, application_errors.ErrConflict
+			return nil, fmt.Errorf("order already uploaded bt another user: %w", application_errors.ErrConflict)
 		}
 	}
 
 	bonusClient := clients.NewBonusClient()
 	_, err = bonusClient.CreateOrder(orderNumber)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to create order in black box: %w", err)
 	}
 
 	orderDetails, err := bonusClient.GetOrderDetails(orderNumber)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to get order details: %w", err)
 	}
 
 	order = models.NewOrder(orderNumber, orderDetails.Status, int64(orderDetails.Amount*10000), user)
 	order, err = myself.container.Orders.Create(context.Background(), order)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to create order in db: %w", err)
 	}
 
 	if orderDetails.Amount > 0 {
 		paymentService := NewPaymentService(myself.container)
 		err = paymentService.CreateAccrualPayment(user, int64(orderDetails.Amount*10000), orderNumber)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("unable to create payment: %w", err)
 		}
 	}
 

@@ -3,10 +3,12 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/DmitriyV003/bonus/internal/application_errors"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/rs/zerolog/log"
 )
 
 type OrderRepository struct {
@@ -22,28 +24,18 @@ func NewOrderRepository(pool *pgxpool.Pool) *OrderRepository {
 func (orders *OrderRepository) Create(ctx context.Context, order *models.Order) (*models.Order, error) {
 	sql := `INSERT INTO orders (number, amount, status, user_id, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id`
 
-	//dbUser, err := users.GetByLogin(ctx, user.Login)
-	//if err != nil && !errors.Is(err, application_errors.ErrNotFound) {
-	//	return application_errors.ErrInternalServer
-	//}
-
-	//if dbUser != nil {
-	//	return application_errors.ErrConflict
-	//}
-
-	//if errors.Is(err, pgx.ErrNoRows) {
-	//	return application_errors.ErrNotFound
-	//}
-
+	log.Info().Fields(map[string]interface{}{
+		"order": order,
+	}).Msg("Creating order in db")
 	var id int64
 	err := orders.db.QueryRow(ctx, sql, order.Number, order.Amount, order.Status, order.User.Id, order.CreatedAt).Scan(&id)
 	if err != nil {
-		return nil, application_errors.ErrInternalServer
+		return nil, fmt.Errorf("unable to insert order to db: %w", err)
 	}
 
 	order, err = orders.GetByIdWithUser(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error to get order by id with user: %w", err)
 	}
 
 	return order, nil
