@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/DmitriyV003/bonus/internal/application_errors"
-	"github.com/DmitriyV003/bonus/internal/container"
 	"github.com/DmitriyV003/bonus/internal/models"
+	"github.com/DmitriyV003/bonus/internal/repository"
 	"github.com/DmitriyV003/bonus/internal/requests"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
@@ -13,22 +13,30 @@ import (
 )
 
 type UserService struct {
-	container      *container.Container
-	user           *models.User
 	validator      OrderValidator
 	paymentService *PaymentService
+	users          *repository.UserRepository
+	payments       *repository.PaymentRepository
+	authService    *AuthService
 }
 
-func NewUserService(container *container.Container, user *models.User, validator OrderValidator, paymentService *PaymentService) *UserService {
+func NewUserService(
+	validator OrderValidator,
+	paymentService *PaymentService,
+	users *repository.UserRepository,
+	payments *repository.PaymentRepository,
+	authService *AuthService,
+) *UserService {
 	return &UserService{
-		container:      container,
-		user:           user,
 		validator:      validator,
 		paymentService: paymentService,
+		users:          users,
+		payments:       payments,
+		authService:    authService,
 	}
 }
 
-func (u *UserService) Create(request *requests.RegistrationRequest, jwtSecret string) (*Token, error) {
+func (u *UserService) Create(request *requests.RegistrationRequest) (*Token, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
 	if err != nil {
 		return nil, err
@@ -39,18 +47,17 @@ func (u *UserService) Create(request *requests.RegistrationRequest, jwtSecret st
 		Password:  string(bytes),
 		CreatedAt: time.Now(),
 	}
-	err = u.container.Users.Create(context.Background(), &user)
+	err = u.users.Create(context.Background(), &user)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create user in db: %w", err)
 	}
 
-	dbUser, err := u.container.Users.GetByLogin(context.Background(), request.Login)
+	dbUser, err := u.users.GetByLogin(context.Background(), request.Login)
 	if err != nil {
 		return nil, fmt.Errorf("error to get user by login: %w", err)
 	}
 
-	authService := NewAuthService(u.container, jwtSecret)
-	token, err := authService.LoginByUser(dbUser)
+	token, err := u.authService.LoginByUser(dbUser)
 	if err != nil {
 		return nil, fmt.Errorf("login user programmly: %w", err)
 	}
@@ -58,7 +65,7 @@ func (u *UserService) Create(request *requests.RegistrationRequest, jwtSecret st
 	return token, nil
 }
 
-func (u *UserService) Withdraw(orderNumber string, sum float64) error {
+func (u *UserService) Withdraw(user *models.User, orderNumber string, sum float64) error {
 	parsedOderNumber, err := strconv.ParseInt(orderNumber, 10, 64)
 	if err != nil {
 		return err
@@ -70,11 +77,11 @@ func (u *UserService) Withdraw(orderNumber string, sum float64) error {
 	}
 
 	sumToWithdraw := int64(sum * 10000)
-	if u.user.Balance < sumToWithdraw {
+	if user.Balance < sumToWithdraw {
 		return fmt.Errorf("unable to validate order number %w", application_errors.ErrLowUserABalance)
 	}
 
-	err = u.paymentService.CreateWithdrawPayment(u.user, sumToWithdraw, orderNumber)
+	err = u.paymentService.CreateWithdrawPayment(user, sumToWithdraw, orderNumber)
 	if err != nil {
 		return fmt.Errorf("unable ro create payment for withdraw %w", err)
 	}
@@ -83,7 +90,7 @@ func (u *UserService) Withdraw(orderNumber string, sum float64) error {
 }
 
 func (u *UserService) AllWithdrawsByUser(user *models.User) ([]*models.Payment, error) {
-	payments, err := u.container.Payments.GetWithdrawsByUser(context.Background(), user)
+	payments, err := u.payments.GetWithdrawsByUser(context.Background(), user)
 	if err != nil {
 		return nil, fmt.Errorf("error to get all withdraws: %w", err)
 	}

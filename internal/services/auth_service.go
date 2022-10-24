@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 	"errors"
-	"github.com/DmitriyV003/bonus/internal/container"
 	"github.com/DmitriyV003/bonus/internal/models"
+	"github.com/DmitriyV003/bonus/internal/repository"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
@@ -22,8 +22,8 @@ func GetLoggedInUser() *models.User {
 }
 
 type AuthService struct {
-	container *container.Container
-	secret    string
+	users  *repository.UserRepository
+	secret string
 }
 
 type Token struct {
@@ -31,10 +31,10 @@ type Token struct {
 	Claims map[string]interface{}
 }
 
-func NewAuthService(container *container.Container, secret string) *AuthService {
+func NewAuthService(secret string, users *repository.UserRepository) *AuthService {
 	return &AuthService{
-		container: container,
-		secret:    secret,
+		secret: secret,
+		users:  users,
 	}
 }
 
@@ -45,7 +45,7 @@ func (myself *AuthService) LoginByUser(user *models.User) (*Token, error) {
 }
 
 func (myself *AuthService) Login(login string, password string) (*Token, error) {
-	user, err := myself.container.Users.GetByLogin(context.Background(), login)
+	user, err := myself.users.GetByLogin(context.Background(), login)
 	if err != nil {
 		return nil, err
 	}

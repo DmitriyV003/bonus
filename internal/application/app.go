@@ -21,9 +21,10 @@ import (
 )
 
 type App struct {
-	pool      *pgxpool.Pool
-	Conf      config.Config
-	Container *container.Container
+	pool         *pgxpool.Pool
+	Conf         config.Config
+	Repositories *container.Repositories
+	Services     *container.Services
 }
 
 func (app *App) CreateHandler() http.Handler {
@@ -42,13 +43,14 @@ func (app *App) CreateHandler() http.Handler {
 	router.Use(middleware.Compress(5))
 	router.Use(middleware.Heartbeat("/heartbeat"))
 
-	app.Container.Users = repository.NewUserRepository(app.pool)
-	app.Container.Orders = repository.NewOrderRepository(app.pool)
-	app.Container.Payments = repository.NewPaymentRepository(app.pool)
+	app.Repositories.Users = repository.NewUserRepository(app.pool)
+	app.Repositories.Orders = repository.NewOrderRepository(app.pool)
+	app.Repositories.Payments = repository.NewPaymentRepository(app.pool)
 
 	privateApiRoutes := routes.Private{
-		Container: app.Container,
-		Conf:      &app.Conf,
+		Repositories: app.Repositories,
+		Services:     app.Services,
+		Conf:         &app.Conf,
 	}
 
 	router.Route("/api", func(r chi.Router) {
@@ -58,7 +60,7 @@ func (app *App) CreateHandler() http.Handler {
 	return router
 }
 
-func (app *App) Config() {
+func (app *App) ApplyConfig() {
 	app.Conf.ParseEnv()
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 }

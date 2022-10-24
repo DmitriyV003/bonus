@@ -9,12 +9,12 @@ import (
 type Config struct {
 	Address        string `env:"ADDRESS"`
 	DatabaseUri    string `env:"DATABASE_URI"`
-	AccrualAddress string `env:"ACCRUAL_SYSTEM_ADDRESS" envDefault:"localhost:8080"`
+	AccrualAddress string `env:"ACCRUAL_SYSTEM_ADDRESS" envDefault:"http://localhost:8080"`
 	JwtSecret      string `env:"JWT_SECRET" envDefault:"jvf48g57h348f493fol-9m[=mp634b3p[n-89--fh23498gh4fgj3f4i[g4["`
 }
 
 const defaultAddress = "localhost:8080"
-const defaultAccrualSystemAddress = "localhost:8080"
+const defaultAccrualSystemAddress = "http://localhost:8080"
 const defaultDatabaseDsn = ""
 
 func (conf *Config) ParseEnv() {

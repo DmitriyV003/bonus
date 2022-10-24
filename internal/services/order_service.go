@@ -6,29 +6,35 @@ import (
 	"fmt"
 	"github.com/DmitriyV003/bonus/internal/application_errors"
 	"github.com/DmitriyV003/bonus/internal/clients"
-	"github.com/DmitriyV003/bonus/internal/container"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/DmitriyV003/bonus/internal/policy"
+	"github.com/DmitriyV003/bonus/internal/repository"
 	"github.com/rs/zerolog/log"
 	"strconv"
 	"time"
 )
 
 type OrderService struct {
-	container   *container.Container
-	validator   OrderValidator
-	bonusClient *clients.BonusClient
+	validator      OrderValidator
+	bonusClient    *clients.BonusClient
+	orders         *repository.OrderRepository
+	users          *repository.UserRepository
+	paymentService *PaymentService
 }
 
 func NewOrderService(
-	container *container.Container,
 	validator OrderValidator,
 	bonusClient *clients.BonusClient,
+	orders *repository.OrderRepository,
+	users *repository.UserRepository,
+	paymentService *PaymentService,
 ) *OrderService {
 	return &OrderService{
-		container:   container,
-		validator:   validator,
-		bonusClient: bonusClient,
+		validator:      validator,
+		bonusClient:    bonusClient,
+		orders:         orders,
+		users:          users,
+		paymentService: paymentService,
 	}
 }
 
@@ -43,7 +49,7 @@ func (myself *OrderService) Create(user *models.User, orderNumber string) (*mode
 		return nil, application_errors.ErrInvalidOrderNumber
 	}
 
-	order, err := myself.container.Orders.GetByNumber(context.Background(), orderNumber)
+	order, err := myself.orders.GetByNumber(context.Background(), orderNumber)
 	if err != nil && !errors.Is(err, application_errors.ErrNotFound) {
 		return nil, err
 	}
@@ -58,35 +64,10 @@ func (myself *OrderService) Create(user *models.User, orderNumber string) (*mode
 	}
 
 	order = models.NewOrder(orderNumber, models.NewStatus, 0, user)
-	order, err = myself.container.Orders.Create(context.Background(), order)
+	order, err = myself.orders.Create(context.Background(), order)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create order in db: %w", err)
 	}
-
-	//_, err = myself.bonusClient.CreateOrder(orderNumber)
-	//if err != nil {
-	//	return nil, fmt.Errorf("unable to create order in black box: %w", err)
-	//}
-	//
-	//orderDetails, err := myself.bonusClient.GetOrderDetails(orderNumber)
-	//if err != nil {
-	//	return nil, fmt.Errorf("unable to get order details: %w", err)
-	//}
-	//
-	//order.Status = orderDetails.Status
-	//order.Amount = int64(orderDetails.Amount * 10000)
-	//err = myself.container.Orders.UpdateById(context.Background(), order)
-	//if err != nil {
-	//	return nil, fmt.Errorf("unable to create order in db: %w", err)
-	//}
-	//
-	//if orderDetails.Amount > 0 {
-	//	paymentService := NewPaymentService(myself.container)
-	//	err = paymentService.CreateAccrualPayment(user, int64(orderDetails.Amount*10000), orderNumber)
-	//	if err != nil {
-	//		return nil, fmt.Errorf("unable to create payment: %w", err)
-	//	}
-	//}
 
 	err = myself.sendAndUpdateOrder(context.Background(), user, order)
 	if err != nil {
@@ -97,7 +78,7 @@ func (myself *OrderService) Create(user *models.User, orderNumber string) (*mode
 }
 
 func (myself *OrderService) OrdersByUser(user *models.User) ([]*models.Order, error) {
-	orders, err := myself.container.Orders.OrdersByUser(context.Background(), user)
+	orders, err := myself.orders.OrdersByUser(context.Background(), user)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +97,7 @@ func (myself *OrderService) PollPendingOrders(ctx context.Context) {
 			cancel()
 			return
 		case <-ticker.C:
-			orders, err := myself.container.Orders.AllPending(ctx)
+			orders, err := myself.orders.AllPending(ctx)
 			if err != nil {
 				cancel()
 				return
@@ -129,7 +110,7 @@ func (myself *OrderService) PollPendingOrders(ctx context.Context) {
 					"number":   order.Number,
 				}).Msg("Polling order")
 
-				user, err := myself.container.Users.GetById(ctx, order.User.Id)
+				user, err := myself.users.GetById(ctx, order.User.Id)
 				if err != nil && !errors.Is(err, application_errors.ErrNotFound) {
 					cancel()
 					return
@@ -161,15 +142,14 @@ func (myself *OrderService) sendAndUpdateOrder(ctx context.Context, user *models
 	if orderDetails != nil && order.Status != orderDetails.Status {
 		order.Status = orderDetails.Status
 		order.Amount = int64(orderDetails.Amount * 10000)
-		err = myself.container.Orders.UpdateById(context.Background(), order)
+		err = myself.orders.UpdateById(context.Background(), order)
 		if err != nil {
 			log.Error().Err(err)
 			return fmt.Errorf("unable to create order in db: %w", err)
 		}
 
 		if orderDetails.Amount > 0 {
-			paymentService := NewPaymentService(myself.container)
-			err = paymentService.CreateAccrualPayment(user, int64(orderDetails.Amount*10000), order.Number)
+			err = myself.paymentService.CreateAccrualPayment(user, int64(orderDetails.Amount*10000), order.Number)
 			if err != nil {
 				return fmt.Errorf("unable to create payment: %w", err)
 			}
