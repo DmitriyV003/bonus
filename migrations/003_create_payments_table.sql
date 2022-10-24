@@ -1,4 +1,3 @@
--- Write your migrate up statements here
 CREATE TYPE transaction_type AS ENUM('debit', 'credit');
 CREATE TYPE type AS ENUM('withdraw', 'accrual');
 
