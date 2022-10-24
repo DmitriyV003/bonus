@@ -14,6 +14,7 @@ var ErrConflict = errors.New("conflict")
 var ErrInvalidOrderNumber = errors.New("invalid order number")
 var ErrModelAlreadyCreated = errors.New("model already created")
 var ErrLowUserABalance = errors.New("low user balance")
+var ErrServiceUnavailable = errors.New("service unavailable")
 
 func WriteHTTPError(w *http.ResponseWriter, status int, errs error) {
 	(*w).Header().Set("Content-Type", "application/json")
@@ -49,6 +50,8 @@ func SwitchError(w *http.ResponseWriter, err error) {
 		(*w).WriteHeader(http.StatusOK)
 	case errors.Is(err, ErrLowUserABalance):
 		(*w).WriteHeader(http.StatusPaymentRequired)
+	case errors.Is(err, ErrServiceUnavailable):
+		(*w).WriteHeader(http.StatusAccepted)
 	default:
 		WriteHTTPError(w, http.StatusInternalServerError, nil)
 	}
