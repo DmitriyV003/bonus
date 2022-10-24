@@ -32,7 +32,7 @@ func (p *Private) Routes() *chi.Mux {
 			r.Get("/orders", handlers.UserOrdersHandler(p.Container))
 			r.Get("/balance", handlers.UserBalanceHandler(p.Container))
 			r.Post("/balance/withdraw", withdraw.Handle(p.Container))
-			r.Get("/balance/withdrawals", allWithdraw.Handle())
+			r.Get("/withdrawals", allWithdraw.Handle())
 
 			r.Get("/test", func(writer http.ResponseWriter, request *http.Request) {
 				fmt.Println("AUTH gone")

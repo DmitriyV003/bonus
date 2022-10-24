@@ -55,6 +55,12 @@ func (myself *OrderService) Create(user *models.User, orderNumber string) (*mode
 		}
 	}
 
+	order = models.NewOrder(orderNumber, models.NewStatus, 0, user)
+	order, err = myself.container.Orders.Create(context.Background(), order)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create order in db: %w", err)
+	}
+
 	_, err = myself.bonusClient.CreateOrder(orderNumber)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create order in black box: %w", err)
@@ -65,8 +71,9 @@ func (myself *OrderService) Create(user *models.User, orderNumber string) (*mode
 		return nil, fmt.Errorf("unable to get order details: %w", err)
 	}
 
-	order = models.NewOrder(orderNumber, orderDetails.Status, int64(orderDetails.Amount*10000), user)
-	order, err = myself.container.Orders.Create(context.Background(), order)
+	order.Status = orderDetails.Status
+	order.Amount = int64(orderDetails.Amount * 10000)
+	err = myself.container.Orders.UpdateById(context.Background(), order)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create order in db: %w", err)
 	}
