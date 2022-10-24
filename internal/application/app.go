@@ -30,7 +30,7 @@ func (app *App) CreateHandler() http.Handler {
 	router := chi.NewRouter()
 	app.pool = app.connectToDB()
 
-	if app.Conf.DatabaseDsn != "" && app.pool != nil {
+	if app.Conf.DatabaseUri != "" && app.pool != nil {
 		app.migrate()
 	}
 
@@ -70,13 +70,13 @@ func (app *App) Close() {
 }
 
 func (app *App) connectToDB() (pool *pgxpool.Pool) {
-	if app.Conf.DatabaseDsn == "" {
+	if app.Conf.DatabaseUri == "" {
 		log.Warn().Msg("Database URl not provided")
 		return nil
 	}
 
 	var err error
-	conf, err := pgxpool.ParseConfig(app.Conf.DatabaseDsn)
+	conf, err := pgxpool.ParseConfig(app.Conf.DatabaseUri)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to parse Database config")
 		return
