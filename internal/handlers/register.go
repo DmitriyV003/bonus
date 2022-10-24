@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/DmitriyV003/bonus/internal/application_errors"
-	"github.com/DmitriyV003/bonus/internal/config"
-	"github.com/DmitriyV003/bonus/internal/container"
 	"github.com/DmitriyV003/bonus/internal/requests"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"github.com/go-playground/validator/v10"
@@ -13,16 +11,16 @@ import (
 )
 
 type RegisterHandler struct {
-	jwtSecret string
+	userService *services.UserService
 }
 
-func NewRegisterHandler(jwtSecret string) *RegisterHandler {
+func NewRegisterHandler(userService *services.UserService) *RegisterHandler {
 	return &RegisterHandler{
-		jwtSecret: jwtSecret,
+		userService: userService,
 	}
 }
 
-func (h *RegisterHandler) Handle(container *container.Container, conf *config.Config) http.HandlerFunc {
+func (h *RegisterHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		var regRequest requests.RegistrationRequest
 
@@ -38,8 +36,7 @@ func (h *RegisterHandler) Handle(container *container.Container, conf *config.Co
 			return
 		}
 
-		service := services.NewUserService(container, nil, nil, nil)
-		token, err := service.Create(&regRequest, conf.JwtSecret)
+		token, err := h.userService.Create(&regRequest)
 		if err != nil {
 			application_errors.SwitchError(&res, err)
 			return
