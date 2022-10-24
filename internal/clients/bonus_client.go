@@ -73,6 +73,10 @@ func (bc *BonusClient) GetOrderDetails(orderNumber string) (*OrderDetailsRespons
 		return nil, fmt.Errorf("unable to read response body: %w", err)
 	}
 
+	if res.StatusCode == http.StatusNoContent {
+		return nil, nil
+	}
+
 	if res.StatusCode == http.StatusOK || res.StatusCode == http.StatusAccepted {
 		err = json.Unmarshal(body, &response)
 		if err != nil {
