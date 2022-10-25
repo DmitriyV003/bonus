@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/DmitriyV003/bonus/internal/application_errors"
+	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
@@ -43,7 +43,7 @@ func (bc *BonusClient) CreateOrder(orderNumber string) (*Response, error) {
 		return nil, fmt.Errorf("unable to marshal json: %w", err)
 	}
 
-	request, err := http.NewRequest(http.MethodPost, bc.getUrl("api/orders"), bytes.NewBuffer(byteData))
+	request, err := http.NewRequest(http.MethodPost, bc.getURL("api/orders"), bytes.NewBuffer(byteData))
 	if err != nil {
 		fmt.Println(err)
 		return nil, fmt.Errorf("unable to create new request: %w", err)
@@ -52,20 +52,22 @@ func (bc *BonusClient) CreateOrder(orderNumber string) (*Response, error) {
 
 	res, err := bc.client.Do(request)
 	if err != nil {
-		return nil, fmt.Errorf("unable to send request [POST] to /api/orders/: %w", application_errors.ErrServiceUnavailable)
+		return nil, fmt.Errorf("unable to send request [POST] to /api/orders/: %w", applicationerrors.ErrServiceUnavailable)
 	}
-	log.Info().Msgf("order created in black box: ", res.Status)
+	defer res.Body.Close()
+	log.Info().Msg("order created in black box")
 
 	return &Response{Code: res.StatusCode}, nil
 }
 
 func (bc *BonusClient) GetOrderDetails(orderNumber string) (*OrderDetailsResponse, error) {
-	request, _ := http.NewRequest(http.MethodGet, bc.getUrl(fmt.Sprintf("api/orders/%s", orderNumber)), nil)
+	request, _ := http.NewRequest(http.MethodGet, bc.getURL(fmt.Sprintf("api/orders/%s", orderNumber)), nil)
 
 	res, err := bc.client.Do(request)
 	if err != nil {
-		return nil, fmt.Errorf("unable to send request [GET] to /api/orders/: %w", application_errors.ErrServiceUnavailable)
+		return nil, fmt.Errorf("unable to send request [GET] to /api/orders/: %w", applicationerrors.ErrServiceUnavailable)
 	}
+	defer res.Body.Close()
 
 	var response OrderDetailsResponse
 	body, err := io.ReadAll(res.Body)
@@ -93,6 +95,6 @@ func (bc *BonusClient) GetOrderDetails(orderNumber string) (*OrderDetailsRespons
 	return &response, nil
 }
 
-func (bc *BonusClient) getUrl(url string) string {
+func (bc *BonusClient) getURL(url string) string {
 	return fmt.Sprintf("%s/%s", bc.url, url)
 }

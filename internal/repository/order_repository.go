@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/DmitriyV003/bonus/internal/application_errors"
+	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -29,12 +29,12 @@ func (orders *OrderRepository) Create(ctx context.Context, order *models.Order) 
 		"order": order,
 	}).Msg("Creating order in db")
 	var id int64
-	err := orders.db.QueryRow(ctx, sql, order.Number, order.Amount, order.Status, order.User.Id, order.CreatedAt).Scan(&id)
+	err := orders.db.QueryRow(ctx, sql, order.Number, order.Amount, order.Status, order.User.ID, order.CreatedAt).Scan(&id)
 	if err != nil {
 		return nil, fmt.Errorf("unable to insert order to db: %w", err)
 	}
 
-	order, err = orders.GetByIdWithUser(ctx, id)
+	order, err = orders.GetByIDWithUser(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("error to get order by id with user: %w", err)
 	}
@@ -42,10 +42,10 @@ func (orders *OrderRepository) Create(ctx context.Context, order *models.Order) 
 	return order, nil
 }
 
-func (orders *OrderRepository) UpdateById(ctx context.Context, order *models.Order) error {
+func (orders *OrderRepository) UpdateByID(ctx context.Context, order *models.Order) error {
 	sql := `UPDATE orders SET amount = $1, status = $2, updated_at = $3 WHERE id = $4`
 
-	_, err := orders.db.Exec(ctx, sql, order.Amount, order.Status, time.Now(), order.Id)
+	_, err := orders.db.Exec(ctx, sql, order.Amount, order.Status, time.Now(), order.ID)
 	if err != nil {
 		return fmt.Errorf("unable to update order in db: %w", err)
 	}
@@ -53,7 +53,7 @@ func (orders *OrderRepository) UpdateById(ctx context.Context, order *models.Ord
 	return nil
 }
 
-func (orders *OrderRepository) GetByIdWithUser(ctx context.Context, id int64) (*models.Order, error) {
+func (orders *OrderRepository) GetByIDWithUser(ctx context.Context, id int64) (*models.Order, error) {
 	sql := `SELECT 
        orders.id, 
        orders.number,
@@ -71,13 +71,13 @@ func (orders *OrderRepository) GetByIdWithUser(ctx context.Context, id int64) (*
 
 	row := orders.db.QueryRow(ctx, sql, id)
 	err := row.Scan(
-		&order.Id,
+		&order.ID,
 		&order.Number,
 		&order.Status,
 		&order.Amount,
 		&order.CreatedAt,
 		&order.UpdatedAt,
-		&user.Id,
+		&user.ID,
 		&user.Login,
 		&user.Balance,
 		&user.CreatedAt,
@@ -89,7 +89,7 @@ func (orders *OrderRepository) GetByIdWithUser(ctx context.Context, id int64) (*
 	}
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, application_errors.ErrNotFound
+		return nil, applicationerrors.ErrNotFound
 	}
 
 	return &order, nil
@@ -110,11 +110,11 @@ func (orders *OrderRepository) GetByNumber(ctx context.Context, number string) (
 
 	row := orders.db.QueryRow(ctx, sql, number)
 	err := row.Scan(
-		&order.Id,
+		&order.ID,
 		&order.Number,
 		&order.Status,
 		&order.Amount,
-		&user.Id,
+		&user.ID,
 		&order.CreatedAt,
 		&order.UpdatedAt,
 	)
@@ -124,7 +124,7 @@ func (orders *OrderRepository) GetByNumber(ctx context.Context, number string) (
 	order.User = &user
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, application_errors.ErrNotFound
+		return nil, applicationerrors.ErrNotFound
 	}
 
 	return &order, nil
@@ -134,7 +134,7 @@ func (orders *OrderRepository) OrdersByUser(ctx context.Context, user *models.Us
 	sql := `SELECT number, status, amount, created_at FROM orders WHERE user_id = $1`
 	var selectedOrders []*models.Order
 
-	rows, err := orders.db.Query(ctx, sql, user.Id)
+	rows, err := orders.db.Query(ctx, sql, user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -155,10 +155,10 @@ func (orders *OrderRepository) OrdersByUser(ctx context.Context, user *models.Us
 
 func (orders *OrderRepository) AllPending(ctx context.Context) ([]*models.Order, error) {
 	sql := `SELECT id, number, user_id, status, created_at FROM orders WHERE status = $1 OR status = $2`
-	countSql := `SELECT count(*) as count FROM orders WHERE status = $1 OR status = $2`
+	countSQL := `SELECT count(*) as count FROM orders WHERE status = $1 OR status = $2`
 	var count int64
 
-	err := orders.db.QueryRow(ctx, countSql, models.NewStatus, models.ProcessingStatus).Scan(&count)
+	err := orders.db.QueryRow(ctx, countSQL, models.NewStatus, models.ProcessingStatus).Scan(&count)
 	if err != nil {
 		return nil, fmt.Errorf("error to get pending orders: %w", err)
 	}
@@ -177,7 +177,7 @@ func (orders *OrderRepository) AllPending(ctx context.Context) ([]*models.Order,
 	for rows.Next() {
 		var order models.Order
 		user := models.User{}
-		err = rows.Scan(&order.Id, &order.Number, &user.Id, &order.Status, &order.CreatedAt)
+		err = rows.Scan(&order.ID, &order.Number, &user.ID, &order.Status, &order.CreatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("error to scan pending orders: %w", err)
 		}

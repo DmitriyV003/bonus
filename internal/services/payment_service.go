@@ -25,7 +25,7 @@ func NewPaymentService(payments *repository.PaymentRepository, users *repository
 
 func (ps *PaymentService) CreateWithdrawPayment(user *models.User, amount int64, orderNumber string) error {
 	payment := models.Payment{
-		Type:            models.WITHDRAW_TYPE,
+		Type:            models.WithdrawType,
 		TransactionType: models.CREDIT,
 		OrderNumber:     orderNumber,
 		Amount:          amount,
@@ -43,8 +43,8 @@ func (ps *PaymentService) CreateWithdrawPayment(user *models.User, amount int64,
 		return fmt.Errorf("error to update user balance in db: %w", err)
 	}
 	log.Info().Fields(map[string]interface{}{
-		"user_id":          user.Id,
-		"payment_id":       createdPayment.Id,
+		"user_id":          user.ID,
+		"payment_id":       createdPayment.ID,
 		"amount":           createdPayment.Amount,
 		"type":             createdPayment.Type,
 		"transaction_type": createdPayment.TransactionType,
@@ -55,7 +55,7 @@ func (ps *PaymentService) CreateWithdrawPayment(user *models.User, amount int64,
 
 func (ps *PaymentService) CreateAccrualPayment(user *models.User, amount int64, orderNumber string) error {
 	payment := models.Payment{
-		Type:            models.ACCRUAL_TYPE,
+		Type:            models.AccrualType,
 		TransactionType: models.DEBIT,
 		OrderNumber:     orderNumber,
 		Amount:          amount,
@@ -73,8 +73,8 @@ func (ps *PaymentService) CreateAccrualPayment(user *models.User, amount int64, 
 		return fmt.Errorf("error to change user palance: %w", err)
 	}
 	log.Info().Fields(map[string]interface{}{
-		"user_id":          user.Id,
-		"payment_id":       createdPayment.Id,
+		"user_id":          user.ID,
+		"payment_id":       createdPayment.ID,
 		"amount":           createdPayment.Amount,
 		"type":             createdPayment.Type,
 		"transaction_type": createdPayment.TransactionType,

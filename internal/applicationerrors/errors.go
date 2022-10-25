@@ -1,4 +1,4 @@
-package application_errors
+package applicationerrors
 
 import (
 	"encoding/json"

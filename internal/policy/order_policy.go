@@ -17,5 +17,5 @@ func NewOrderPolicy(order *models2.Order, user *models2.User) *OrderPolicy {
 }
 
 func (op *OrderPolicy) Create() bool {
-	return op.order.User.Id == op.user.Id
+	return op.order.User.ID == op.user.ID
 }

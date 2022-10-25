@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/DmitriyV003/bonus/internal/application_errors"
+	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/clients"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/DmitriyV003/bonus/internal/policy"
@@ -46,20 +46,20 @@ func (myself *OrderService) Create(ctx context.Context, user *models.User, order
 
 	isValid := myself.validator.Validate(parsedOderNumber)
 	if !isValid {
-		return nil, fmt.Errorf("invalid order number: %w", application_errors.ErrInvalidOrderNumber)
+		return nil, fmt.Errorf("invalid order number: %w", applicationerrors.ErrInvalidOrderNumber)
 	}
 
 	order, err := myself.orders.GetByNumber(ctx, orderNumber)
-	if err != nil && !errors.Is(err, application_errors.ErrNotFound) {
+	if err != nil && !errors.Is(err, applicationerrors.ErrNotFound) {
 		return nil, fmt.Errorf("db error to get order by number: %w", err)
 	}
 
 	orderPolicy := policy.NewOrderPolicy(order, user)
 	if order != nil {
 		if orderPolicy.Create() {
-			return nil, fmt.Errorf("order already accepted: %w", application_errors.ErrModelAlreadyCreated)
+			return nil, fmt.Errorf("order already accepted: %w", applicationerrors.ErrModelAlreadyCreated)
 		} else {
-			return nil, fmt.Errorf("order already uploaded bt another user: %w", application_errors.ErrConflict)
+			return nil, fmt.Errorf("order already uploaded bt another user: %w", applicationerrors.ErrConflict)
 		}
 	}
 
@@ -105,20 +105,20 @@ func (myself *OrderService) PollPendingOrders(ctx context.Context) {
 
 			for _, order := range orders {
 				log.Info().Fields(map[string]interface{}{
-					"order_id": order.Id,
+					"order_id": order.ID,
 					"status":   order.Status,
 					"number":   order.Number,
 				}).Msg("Polling order")
 
-				user, err := myself.users.GetById(ctx, order.User.Id)
-				if err != nil && !errors.Is(err, application_errors.ErrNotFound) {
+				user, err := myself.users.GetByID(ctx, order.User.ID)
+				if err != nil && !errors.Is(err, applicationerrors.ErrNotFound) {
 					cancel()
 					log.Error().Err(err).Msg("error occurred")
 					return
 				}
 
 				err = myself.sendAndUpdateOrder(ctx, user, order)
-				if err != nil && !errors.Is(err, application_errors.ErrServiceUnavailable) {
+				if err != nil && !errors.Is(err, applicationerrors.ErrServiceUnavailable) {
 					log.Error().Err(err).Msg("error occurred")
 					cancel()
 				}
@@ -143,7 +143,7 @@ func (myself *OrderService) sendAndUpdateOrder(ctx context.Context, user *models
 	if orderDetails != nil && order.Status != orderDetails.Status {
 		order.Status = orderDetails.Status
 		order.Amount = int64(orderDetails.Amount * 10000)
-		err = myself.orders.UpdateById(context.Background(), order)
+		err = myself.orders.UpdateByID(context.Background(), order)
 		if err != nil {
 			log.Error().Err(err)
 			return fmt.Errorf("unable to create order in db: %w", err)
