@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/DmitriyV003/bonus/internal/application_errors"
+	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -34,7 +34,7 @@ func (payments *PaymentRepository) Create(ctx context.Context, payment *models.P
 	err := payments.db.QueryRow(
 		ctx,
 		sql,
-		payment.User.Id,
+		payment.User.ID,
 		payment.Type,
 		payment.TransactionType,
 		payment.OrderNumber,
@@ -42,10 +42,10 @@ func (payments *PaymentRepository) Create(ctx context.Context, payment *models.P
 		payment.CreatedAt,
 	).Scan(&id)
 	if err != nil {
-		return nil, application_errors.ErrInternalServer
+		return nil, applicationerrors.ErrInternalServer
 	}
 
-	payment, err = payments.GetByIdWithUser(ctx, id)
+	payment, err = payments.GetByIDWithUser(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (payments *PaymentRepository) Create(ctx context.Context, payment *models.P
 	return payment, nil
 }
 
-func (payments *PaymentRepository) GetByIdWithUser(ctx context.Context, id int64) (*models.Payment, error) {
+func (payments *PaymentRepository) GetByIDWithUser(ctx context.Context, id int64) (*models.Payment, error) {
 	sql := `SELECT 
        p.id, 
        p.type, 
@@ -75,14 +75,14 @@ func (payments *PaymentRepository) GetByIdWithUser(ctx context.Context, id int64
 	row := payments.db.QueryRow(ctx, sql, id)
 
 	err := row.Scan(
-		&payment.Id,
+		&payment.ID,
 		&payment.Type,
 		&payment.TransactionType,
 		&payment.OrderNumber,
 		&payment.Amount,
 		&payment.CreatedAt,
 		&payment.UpdatedAt,
-		&user.Id,
+		&user.ID,
 		&user.Login,
 		&user.Balance,
 		&user.CreatedAt,
@@ -95,7 +95,7 @@ func (payments *PaymentRepository) GetByIdWithUser(ctx context.Context, id int64
 	payment.User = &user
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, application_errors.ErrNotFound
+		return nil, applicationerrors.ErrNotFound
 	}
 
 	return &payment, nil
@@ -105,7 +105,7 @@ func (payments *PaymentRepository) WithdrawnAmountByUser(ctx context.Context, us
 	sql := `SELECT COALESCE(SUM(amount), 0) FROM payments WHERE user_id = $1 AND type = 'withdraw'`
 
 	var amount int64
-	err := payments.db.QueryRow(ctx, sql, user.Id).Scan(&amount)
+	err := payments.db.QueryRow(ctx, sql, user.ID).Scan(&amount)
 	if err != nil {
 		fmt.Println(err)
 		return 0, err
@@ -121,7 +121,7 @@ func (payments *PaymentRepository) GetWithdrawsByUser(ctx context.Context, user 
 		ORDER BY created_at`
 	var selectedPayments []*models.Payment
 
-	rows, err := payments.db.Query(ctx, sql, user.Id, models.WITHDRAW_TYPE, models.CREDIT)
+	rows, err := payments.db.Query(ctx, sql, user.ID, models.WithdrawType, models.CREDIT)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (payments *PaymentRepository) GetWithdrawsByUser(ctx context.Context, user 
 
 	for rows.Next() {
 		var payment models.Payment
-		err = rows.Scan(&payment.Id, &payment.OrderNumber, &payment.Amount, &payment.CreatedAt)
+		err = rows.Scan(&payment.ID, &payment.OrderNumber, &payment.Amount, &payment.CreatedAt)
 		if err != nil {
 			return nil, err
 		}

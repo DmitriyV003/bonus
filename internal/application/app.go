@@ -31,7 +31,7 @@ func (app *App) CreateHandler() http.Handler {
 	router := chi.NewRouter()
 	app.pool = app.connectToDB()
 
-	if app.Conf.DatabaseUri != "" && app.pool != nil {
+	if app.Conf.DatabaseURI != "" && app.pool != nil {
 		app.migrate()
 	}
 
@@ -47,14 +47,14 @@ func (app *App) CreateHandler() http.Handler {
 	app.Repositories.Orders = repository.NewOrderRepository(app.pool)
 	app.Repositories.Payments = repository.NewPaymentRepository(app.pool)
 
-	privateApiRoutes := routes.Private{
+	privateAPIRoutes := routes.Private{
 		Repositories: app.Repositories,
 		Services:     app.Services,
 		Conf:         &app.Conf,
 	}
 
 	router.Route("/api", func(r chi.Router) {
-		r.Mount("/", privateApiRoutes.Routes())
+		r.Mount("/", privateAPIRoutes.Routes())
 	})
 
 	return router
@@ -72,13 +72,13 @@ func (app *App) Close() {
 }
 
 func (app *App) connectToDB() (pool *pgxpool.Pool) {
-	if app.Conf.DatabaseUri == "" {
+	if app.Conf.DatabaseURI == "" {
 		log.Warn().Msg("Database URl not provided")
 		return nil
 	}
 
 	var err error
-	conf, err := pgxpool.ParseConfig(app.Conf.DatabaseUri)
+	conf, err := pgxpool.ParseConfig(app.Conf.DatabaseURI)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to parse Database config")
 		return
@@ -116,7 +116,7 @@ func (app *App) migrate() {
 		sql := `SELECT id, name FROM migrations WHERE name = $1`
 		var dbMigration migration
 
-		err = app.pool.QueryRow(context.Background(), sql, migrationFile.Name()).Scan(&dbMigration.Id, &dbMigration.Name)
+		err = app.pool.QueryRow(context.Background(), sql, migrationFile.Name()).Scan(&dbMigration.ID, &dbMigration.Name)
 		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			log.Error().Err(err).Msg("Error to query migration")
 			return
@@ -167,6 +167,6 @@ func (app *App) createMigrationsTable() {
 }
 
 type migration struct {
-	Id   int64
+	ID   int64
 	Name string
 }

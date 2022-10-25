@@ -8,7 +8,7 @@ const InvalidStatus = "INVALID"
 const ProcessedStatus = "PROCESSED"
 
 type Order struct {
-	Id        int64      `json:"id,omitempty"`
+	ID        int64      `json:"id,omitempty"`
 	Number    string     `json:"number,omitempty"`
 	Status    string     `json:"status,omitempty"`
 	Amount    int64      `json:"amount,omitempty"`

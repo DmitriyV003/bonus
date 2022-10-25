@@ -99,8 +99,8 @@ func (myself *AuthService) generateJwt(user *models.User) (*Token, error) {
 	claims := jwt.MapClaims{}
 	claims["exp"] = time.Now().Add(24 * 60 * 5 * time.Minute).Unix()
 	claims["iat"] = time.Now().Unix()
-	claims["sub"] = strconv.FormatInt(user.Id, 10)
-	claims["user_id"] = strconv.FormatInt(user.Id, 10)
+	claims["sub"] = strconv.FormatInt(user.ID, 10)
+	claims["user_id"] = strconv.FormatInt(user.ID, 10)
 	token.Claims = claims
 
 	genToken, err := token.SignedString([]byte(myself.secret))

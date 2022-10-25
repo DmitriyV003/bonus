@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/DmitriyV003/bonus/internal/application_errors"
+	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"io/ioutil"
 	"net/http"
@@ -22,7 +22,7 @@ func (h *CreateOrderHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		response, err := ioutil.ReadAll(request.Body)
 		if err != nil {
-			application_errors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err)
 			return
 		}
 		defer request.Body.Close()
@@ -34,13 +34,13 @@ func (h *CreateOrderHandler) Handle() http.HandlerFunc {
 
 		order, err := h.orderService.Create(request.Context(), services.GetLoggedInUser(), string(response))
 		if err != nil {
-			application_errors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err)
 			return
 		}
 
 		data, err := json.Marshal(order)
 		if err != nil {
-			application_errors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err)
 			return
 		}
 

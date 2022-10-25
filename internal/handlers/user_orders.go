@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/DmitriyV003/bonus/internal/application_errors"
+	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/resources"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"net/http"
@@ -22,7 +22,7 @@ func (h *UserOrdersHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		orders, err := h.orderService.OrdersByUser(services.GetLoggedInUser())
 		if err != nil {
-			application_errors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err)
 			return
 		}
 
@@ -34,7 +34,7 @@ func (h *UserOrdersHandler) Handle() http.HandlerFunc {
 
 		data, err := json.Marshal(ordersToReturn)
 		if err != nil {
-			application_errors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err)
 			return
 		}
 

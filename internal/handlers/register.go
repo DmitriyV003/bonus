@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/DmitriyV003/bonus/internal/application_errors"
+	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/requests"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"github.com/go-playground/validator/v10"
@@ -27,18 +27,18 @@ func (h *RegisterHandler) Handle() http.HandlerFunc {
 		validate := validator.New()
 
 		if err := json.NewDecoder(request.Body).Decode(&regRequest); err != nil {
-			application_errors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err)
 			return
 		}
 
 		if err := validate.Struct(&regRequest); err != nil {
-			application_errors.WriteHTTPError(&res, http.StatusBadRequest, err)
+			applicationerrors.WriteHTTPError(&res, http.StatusBadRequest, err)
 			return
 		}
 
 		token, err := h.userService.Create(&regRequest)
 		if err != nil {
-			application_errors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err)
 			return
 		}
 
