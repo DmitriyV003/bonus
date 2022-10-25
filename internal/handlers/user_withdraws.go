@@ -20,7 +20,7 @@ func NewUserWithdawsHandler(us *services.UserService) *UserWithdawsHandler {
 
 func (h *UserWithdawsHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
-		payments, err := h.userService.AllWithdrawsByUser(services.GetLoggedInUser())
+		payments, err := h.userService.AllWithdrawsByUser(request.Context(), services.GetLoggedInUser())
 		if err != nil {
 			applicationerrors.SwitchError(&res, err)
 			return

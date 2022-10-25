@@ -36,7 +36,7 @@ func (h LoginHandler) Handle() http.HandlerFunc {
 			return
 		}
 
-		token, err := h.authService.Login(loginRequest.Login, loginRequest.Password)
+		token, err := h.authService.Login(request.Context(), loginRequest.Login, loginRequest.Password)
 		if err != nil {
 			applicationerrors.SwitchError(&res, err)
 			return

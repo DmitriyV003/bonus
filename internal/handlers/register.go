@@ -36,7 +36,7 @@ func (h *RegisterHandler) Handle() http.HandlerFunc {
 			return
 		}
 
-		token, err := h.userService.Create(&regRequest)
+		token, err := h.userService.Create(request.Context(), &regRequest)
 		if err != nil {
 			applicationerrors.SwitchError(&res, err)
 			return

@@ -23,7 +23,7 @@ func NewPaymentService(payments *repository.PaymentRepository, users *repository
 	}
 }
 
-func (ps *PaymentService) CreateWithdrawPayment(user *models.User, amount int64, orderNumber string) error {
+func (ps *PaymentService) CreateWithdrawPayment(ctx context.Context, user *models.User, amount int64, orderNumber string) error {
 	payment := models.Payment{
 		Type:            models.WithdrawType,
 		TransactionType: models.CREDIT,
@@ -33,12 +33,12 @@ func (ps *PaymentService) CreateWithdrawPayment(user *models.User, amount int64,
 		CreatedAt:       time.Now(),
 	}
 
-	createdPayment, err := ps.create(&payment)
+	createdPayment, err := ps.create(ctx, &payment)
 	if err != nil {
 		return fmt.Errorf("error to create payment in db: %w", err)
 	}
 
-	err = ps.balanceService.Withdraw(createdPayment, user)
+	err = ps.balanceService.Withdraw(ctx, createdPayment, user)
 	if err != nil {
 		return fmt.Errorf("error to update user balance in db: %w", err)
 	}
@@ -53,7 +53,7 @@ func (ps *PaymentService) CreateWithdrawPayment(user *models.User, amount int64,
 	return nil
 }
 
-func (ps *PaymentService) CreateAccrualPayment(user *models.User, amount int64, orderNumber string) error {
+func (ps *PaymentService) CreateAccrualPayment(ctx context.Context, user *models.User, amount int64, orderNumber string) error {
 	payment := models.Payment{
 		Type:            models.AccrualType,
 		TransactionType: models.DEBIT,
@@ -63,12 +63,12 @@ func (ps *PaymentService) CreateAccrualPayment(user *models.User, amount int64, 
 		CreatedAt:       time.Now(),
 	}
 
-	createdPayment, err := ps.create(&payment)
+	createdPayment, err := ps.create(ctx, &payment)
 	if err != nil {
 		return fmt.Errorf("error to save payment in db: %w", err)
 	}
 
-	err = ps.balanceService.Accrual(createdPayment, user)
+	err = ps.balanceService.Accrual(ctx, createdPayment, user)
 	if err != nil {
 		return fmt.Errorf("error to change user palance: %w", err)
 	}
@@ -83,8 +83,8 @@ func (ps *PaymentService) CreateAccrualPayment(user *models.User, amount int64, 
 	return nil
 }
 
-func (ps *PaymentService) create(payment *models.Payment) (*models.Payment, error) {
-	createdPayment, err := ps.payments.Create(context.Background(), payment)
+func (ps *PaymentService) create(ctx context.Context, payment *models.Payment) (*models.Payment, error) {
+	createdPayment, err := ps.payments.Create(ctx, payment)
 	if err != nil {
 		return nil, fmt.Errorf("error to create payment in db: %w", err)
 	}

@@ -77,10 +77,10 @@ func (myself *OrderService) Create(ctx context.Context, user *models.User, order
 	return order, nil
 }
 
-func (myself *OrderService) OrdersByUser(user *models.User) ([]*models.Order, error) {
-	orders, err := myself.orders.OrdersByUser(context.Background(), user)
+func (myself *OrderService) OrdersByUser(ctx context.Context, user *models.User) ([]*models.Order, error) {
+	orders, err := myself.orders.OrdersByUser(ctx, user)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error to get orders by user: %w", err)
 	}
 
 	return orders, nil
@@ -150,7 +150,7 @@ func (myself *OrderService) sendAndUpdateOrder(ctx context.Context, user *models
 		}
 
 		if orderDetails.Amount > 0 {
-			err = myself.paymentService.CreateAccrualPayment(user, int64(orderDetails.Amount*10000), order.Number)
+			err = myself.paymentService.CreateAccrualPayment(ctx, user, int64(orderDetails.Amount*10000), order.Number)
 			if err != nil {
 				return fmt.Errorf("unable to create payment: %w", err)
 			}

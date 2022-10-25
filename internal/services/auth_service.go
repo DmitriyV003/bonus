@@ -48,8 +48,8 @@ func (myself *AuthService) LoginByUser(user *models.User) (*Token, error) {
 	return token, nil
 }
 
-func (myself *AuthService) Login(login string, password string) (*Token, error) {
-	user, err := myself.users.GetByLogin(context.Background(), login)
+func (myself *AuthService) Login(ctx context.Context, login string, password string) (*Token, error) {
+	user, err := myself.users.GetByLogin(ctx, login)
 	if err != nil {
 		return nil, fmt.Errorf("error to get user by login: %w", err)
 	}
