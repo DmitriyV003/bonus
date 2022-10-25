@@ -56,15 +56,20 @@ func (m *AuthMiddleware) Pipe() func(next http.Handler) http.Handler {
 				return
 			}
 
-			parsedUserId, err := strconv.ParseInt(newToken.Claims["user_id"].(string), 10, 64)
-			user, err := m.users.GetById(context.Background(), parsedUserId)
+			parsedUserID, err := strconv.ParseInt(newToken.Claims["user_id"].(string), 10, 64)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			user, err := m.users.GetByID(context.Background(), parsedUserID)
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 			services.SetLoggedInUser(user)
 
-			next.ServeHTTP(w, r.WithContext(context.WithValue(context.Background(), "user", user)))
+			next.ServeHTTP(w, r.WithContext(context.Background()))
 		})
 	}
 }
