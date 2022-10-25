@@ -17,7 +17,7 @@ func NewUserBalanceHandler(balanceService *services.BalanceService) *UserBalance
 
 func (h *UserBalanceHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
-		resource, err := h.balanceService.Balance(services.GetLoggedInUser())
+		resource, err := h.balanceService.Balance(request.Context(), services.GetLoggedInUser())
 		if err != nil {
 			applicationerrors.SwitchError(&res, err)
 			return
