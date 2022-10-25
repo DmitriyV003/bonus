@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/DmitriyV003/bonus/internal/repository"
 	"github.com/rs/zerolog/log"
@@ -34,12 +35,12 @@ func (ps *PaymentService) CreateWithdrawPayment(user *models.User, amount int64,
 
 	createdPayment, err := ps.create(&payment)
 	if err != nil {
-		return err
+		return fmt.Errorf("error to create payment in db: %w", err)
 	}
 
 	err = ps.balanceService.Withdraw(createdPayment, user)
 	if err != nil {
-		return err
+		return fmt.Errorf("error to update user balance in db: %w", err)
 	}
 	log.Info().Fields(map[string]interface{}{
 		"user_id":          user.Id,
@@ -64,12 +65,12 @@ func (ps *PaymentService) CreateAccrualPayment(user *models.User, amount int64, 
 
 	createdPayment, err := ps.create(&payment)
 	if err != nil {
-		return err
+		return fmt.Errorf("error to save payment in db: %w", err)
 	}
 
 	err = ps.balanceService.Accrual(createdPayment, user)
 	if err != nil {
-		return err
+		return fmt.Errorf("error to change user palance: %w", err)
 	}
 	log.Info().Fields(map[string]interface{}{
 		"user_id":          user.Id,
@@ -85,7 +86,7 @@ func (ps *PaymentService) CreateAccrualPayment(user *models.User, amount int64, 
 func (ps *PaymentService) create(payment *models.Payment) (*models.Payment, error) {
 	createdPayment, err := ps.payments.Create(context.Background(), payment)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error to create payment in db: %w", err)
 	}
 
 	return createdPayment, nil
