@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
-	"github.com/DmitriyV003/bonus/internal/application_errors"
+	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/DmitriyV003/bonus/internal/repository"
 	"github.com/DmitriyV003/bonus/internal/requests"
@@ -73,12 +73,12 @@ func (u *UserService) Withdraw(user *models.User, orderNumber string, sum float6
 
 	isValid := u.validator.Validate(parsedOderNumber)
 	if !isValid {
-		return fmt.Errorf("unable to validate order number %w", application_errors.ErrInvalidOrderNumber)
+		return fmt.Errorf("unable to validate order number %w", applicationerrors.ErrInvalidOrderNumber)
 	}
 
 	sumToWithdraw := int64(sum * 10000)
 	if user.Balance < sumToWithdraw {
-		return fmt.Errorf("unable to validate order number %w", application_errors.ErrLowUserABalance)
+		return fmt.Errorf("unable to validate order number %w", applicationerrors.ErrLowUserABalance)
 	}
 
 	err = u.paymentService.CreateWithdrawPayment(user, sumToWithdraw, orderNumber)

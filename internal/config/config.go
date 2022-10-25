@@ -8,7 +8,7 @@ import (
 
 type Config struct {
 	Address        string `env:"ADDRESS"`
-	DatabaseUri    string `env:"DATABASE_URI"`
+	DatabaseURI    string `env:"DATABASE_URI"`
 	AccrualAddress string `env:"ACCRUAL_SYSTEM_ADDRESS" envDefault:"http://localhost:8080"`
 	JwtSecret      string `env:"JWT_SECRET" envDefault:"jvf48g57h348f493fol-9m[=mp634b3p[n-89--fh23498gh4fgj3f4i[g4["`
 }
@@ -24,7 +24,7 @@ func (conf *Config) ParseEnv() {
 	}
 
 	address := flag.String("a", defaultAddress, "Server address")
-	databaseUri := flag.String("d", defaultDatabaseDsn, "connection string to database")
+	databaseURI := flag.String("d", defaultDatabaseDsn, "connection string to database")
 	accrualAddress := flag.String("r", defaultAccrualSystemAddress, "accrual address")
 	flag.PrintDefaults()
 	flag.Parse()
@@ -36,8 +36,8 @@ func (conf *Config) ParseEnv() {
 	if conf.Address == "" {
 		conf.Address = *address
 	}
-	if conf.DatabaseUri == "" {
-		conf.DatabaseUri = *databaseUri
+	if conf.DatabaseURI == "" {
+		conf.DatabaseURI = *databaseURI
 	}
 	if conf.AccrualAddress == "" {
 		conf.AccrualAddress = *accrualAddress
