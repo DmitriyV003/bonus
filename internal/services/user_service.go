@@ -36,7 +36,7 @@ func NewUserService(
 	}
 }
 
-func (u *UserService) Create(request *requests.RegistrationRequest) (*Token, error) {
+func (u *UserService) Create(ctx context.Context, request *requests.RegistrationRequest) (*Token, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
 	if err != nil {
 		return nil, fmt.Errorf("error to generate hash from password: %w", err)
@@ -47,12 +47,12 @@ func (u *UserService) Create(request *requests.RegistrationRequest) (*Token, err
 		Password:  string(bytes),
 		CreatedAt: time.Now(),
 	}
-	err = u.users.Create(context.Background(), &user)
+	err = u.users.Create(ctx, &user)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create user in db: %w", err)
 	}
 
-	dbUser, err := u.users.GetByLogin(context.Background(), request.Login)
+	dbUser, err := u.users.GetByLogin(ctx, request.Login)
 	if err != nil {
 		return nil, fmt.Errorf("error to get user by login: %w", err)
 	}
@@ -65,7 +65,7 @@ func (u *UserService) Create(request *requests.RegistrationRequest) (*Token, err
 	return token, nil
 }
 
-func (u *UserService) Withdraw(user *models.User, orderNumber string, sum float64) error {
+func (u *UserService) Withdraw(ctx context.Context, user *models.User, orderNumber string, sum float64) error {
 	parsedOderNumber, err := strconv.ParseInt(orderNumber, 10, 64)
 	if err != nil {
 		return err
@@ -81,7 +81,7 @@ func (u *UserService) Withdraw(user *models.User, orderNumber string, sum float6
 		return fmt.Errorf("unable to validate order number %w", applicationerrors.ErrLowUserABalance)
 	}
 
-	err = u.paymentService.CreateWithdrawPayment(user, sumToWithdraw, orderNumber)
+	err = u.paymentService.CreateWithdrawPayment(ctx, user, sumToWithdraw, orderNumber)
 	if err != nil {
 		return fmt.Errorf("unable ro create payment for withdraw %w", err)
 	}
@@ -89,8 +89,8 @@ func (u *UserService) Withdraw(user *models.User, orderNumber string, sum float6
 	return nil
 }
 
-func (u *UserService) AllWithdrawsByUser(user *models.User) ([]*models.Payment, error) {
-	payments, err := u.payments.GetWithdrawsByUser(context.Background(), user)
+func (u *UserService) AllWithdrawsByUser(ctx context.Context, user *models.User) ([]*models.Payment, error) {
+	payments, err := u.payments.GetWithdrawsByUser(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("error to get all withdraws: %w", err)
 	}

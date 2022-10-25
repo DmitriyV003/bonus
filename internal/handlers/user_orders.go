@@ -20,7 +20,7 @@ func NewUserOrdersHandler(orderService *services.OrderService) *UserOrdersHandle
 
 func (h *UserOrdersHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
-		orders, err := h.orderService.OrdersByUser(services.GetLoggedInUser())
+		orders, err := h.orderService.OrdersByUser(request.Context(), services.GetLoggedInUser())
 		if err != nil {
 			applicationerrors.SwitchError(&res, err)
 			return
