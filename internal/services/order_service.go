@@ -41,17 +41,17 @@ func NewOrderService(
 func (myself *OrderService) Create(ctx context.Context, user *models.User, orderNumber string) (*models.Order, error) {
 	parsedOderNumber, err := strconv.ParseInt(orderNumber, 10, 64)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error to parse order number: %w", err)
 	}
 
 	isValid := myself.validator.Validate(parsedOderNumber)
 	if !isValid {
-		return nil, application_errors.ErrInvalidOrderNumber
+		return nil, fmt.Errorf("invalid order number: %w", application_errors.ErrInvalidOrderNumber)
 	}
 
 	order, err := myself.orders.GetByNumber(ctx, orderNumber)
 	if err != nil && !errors.Is(err, application_errors.ErrNotFound) {
-		return nil, err
+		return nil, fmt.Errorf("db error to get order by number: %w", err)
 	}
 
 	orderPolicy := policy.NewOrderPolicy(order, user)
@@ -113,12 +113,13 @@ func (myself *OrderService) PollPendingOrders(ctx context.Context) {
 				user, err := myself.users.GetById(ctx, order.User.Id)
 				if err != nil && !errors.Is(err, application_errors.ErrNotFound) {
 					cancel()
+					log.Error().Err(err).Msg("error occurred")
 					return
 				}
 
 				err = myself.sendAndUpdateOrder(ctx, user, order)
 				if err != nil && !errors.Is(err, application_errors.ErrServiceUnavailable) {
-					log.Error().Err(err)
+					log.Error().Err(err).Msg("error occurred")
 					cancel()
 				}
 			}

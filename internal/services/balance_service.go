@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/DmitriyV003/bonus/internal/repository"
 	"github.com/DmitriyV003/bonus/internal/resources"
@@ -22,7 +23,7 @@ func NewBalanceService(payments *repository.PaymentRepository, users *repository
 func (bs *BalanceService) Balance(user *models.User) (*resources.UserBalanceResource, error) {
 	withdrawn, err := bs.payments.WithdrawnAmountByUser(context.Background(), user)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error to withdraw from balance: %w", err)
 	}
 
 	resource := resources.NewUserBalanceResource(user.Balance, withdrawn)
@@ -35,7 +36,7 @@ func (bs *BalanceService) Withdraw(payment *models.Payment, user *models.User) e
 	user.Balance = balance - payment.Amount
 	err := bs.users.UpdateBalance(context.Background(), user)
 	if err != nil {
-		return err
+		return fmt.Errorf("error to update user balance: %w", err)
 	}
 
 	return nil
@@ -46,7 +47,7 @@ func (bs *BalanceService) Accrual(payment *models.Payment, user *models.User) er
 	user.Balance = balance + payment.Amount
 	err := bs.users.UpdateBalance(context.Background(), user)
 	if err != nil {
-		return err
+		return fmt.Errorf("error to update user balance: %w", err)
 	}
 
 	return nil
