@@ -39,7 +39,7 @@ func NewUserService(
 func (u *UserService) Create(request *requests.RegistrationRequest) (*Token, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error to generate hash from password: %w", err)
 	}
 
 	user := models.User{
