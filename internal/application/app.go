@@ -93,17 +93,8 @@ func (app *App) connectToDB() (pool *pgxpool.Pool) {
 	return pool
 }
 
-// TODO: rewrite method normally
 func (app *App) migrate() {
-	sql := `CREATE TABLE IF NOT EXISTS migrations(
-    	id serial PRIMARY KEY,
-    	name VARCHAR (255) NOT NULL UNIQUE)`
-	_, err := app.pool.Exec(context.Background(), sql)
-	if err != nil {
-		log.Error().Err(err).Msg("Error during migrationFile")
-		return
-	}
-
+	app.createMigrationsTable()
 	log.Info().Msgf("Creating migrations table")
 
 	migrations, err := os.ReadDir("migrations")
@@ -122,10 +113,10 @@ func (app *App) migrate() {
 			return
 		}
 
-		sql = `SELECT id, name FROM migrations WHERE name = $1`
+		sql := `SELECT id, name FROM migrations WHERE name = $1`
 		var dbMigration migration
 
-		err := app.pool.QueryRow(context.Background(), sql, migrationFile.Name()).Scan(&dbMigration.Id, &dbMigration.Name)
+		err = app.pool.QueryRow(context.Background(), sql, migrationFile.Name()).Scan(&dbMigration.Id, &dbMigration.Name)
 		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			log.Error().Err(err).Msg("Error to query migration")
 			return
@@ -159,7 +150,19 @@ func (app *App) migrate() {
 			return
 		}
 
-		log.Info().Msgf("Migrating: %s", wr.String())
+		log.Info().Msgf("Migrating: %s", migrationFile.Name())
+	}
+	log.Info().Msg("Migrations passed successfully")
+}
+
+func (app *App) createMigrationsTable() {
+	sql := `CREATE TABLE IF NOT EXISTS migrations(
+    	id serial PRIMARY KEY,
+    	name VARCHAR (255) NOT NULL UNIQUE)`
+	_, err := app.pool.Exec(context.Background(), sql)
+	if err != nil {
+		log.Error().Err(err).Msg("Error during migrationFile")
+		return
 	}
 }
 
