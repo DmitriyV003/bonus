@@ -26,7 +26,7 @@ func (h *WithdrawHandler) Handle() http.HandlerFunc {
 			return
 		}
 
-		err := h.userService.Withdraw(services.GetLoggedInUser(), withdrawReq.Order, withdrawReq.Sum)
+		err := h.userService.Withdraw(request.Context(), services.GetLoggedInUser(), withdrawReq.Order, withdrawReq.Sum)
 		if err != nil {
 			applicationerrors.SwitchError(&res, err)
 			return

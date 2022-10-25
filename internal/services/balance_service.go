@@ -20,8 +20,8 @@ func NewBalanceService(payments *repository.PaymentRepository, users *repository
 	}
 }
 
-func (bs *BalanceService) Balance(user *models.User) (*resources.UserBalanceResource, error) {
-	withdrawn, err := bs.payments.WithdrawnAmountByUser(context.Background(), user)
+func (bs *BalanceService) Balance(ctx context.Context, user *models.User) (*resources.UserBalanceResource, error) {
+	withdrawn, err := bs.payments.WithdrawnAmountByUser(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("error to withdraw from balance: %w", err)
 	}
@@ -31,10 +31,10 @@ func (bs *BalanceService) Balance(user *models.User) (*resources.UserBalanceReso
 	return resource, nil
 }
 
-func (bs *BalanceService) Withdraw(payment *models.Payment, user *models.User) error {
+func (bs *BalanceService) Withdraw(ctx context.Context, payment *models.Payment, user *models.User) error {
 	balance := user.Balance
 	user.Balance = balance - payment.Amount
-	err := bs.users.UpdateBalance(context.Background(), user)
+	err := bs.users.UpdateBalance(ctx, user)
 	if err != nil {
 		return fmt.Errorf("error to update user balance: %w", err)
 	}
@@ -42,10 +42,10 @@ func (bs *BalanceService) Withdraw(payment *models.Payment, user *models.User) e
 	return nil
 }
 
-func (bs *BalanceService) Accrual(payment *models.Payment, user *models.User) error {
+func (bs *BalanceService) Accrual(ctx context.Context, payment *models.Payment, user *models.User) error {
 	balance := user.Balance
 	user.Balance = balance + payment.Amount
-	err := bs.users.UpdateBalance(context.Background(), user)
+	err := bs.users.UpdateBalance(ctx, user)
 	if err != nil {
 		return fmt.Errorf("error to update user balance: %w", err)
 	}
