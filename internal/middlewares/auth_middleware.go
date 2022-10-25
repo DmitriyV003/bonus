@@ -31,6 +31,11 @@ func (m *AuthMiddleware) Pipe() func(next http.Handler) http.Handler {
 			}
 
 			token := strings.Split(tokenHeader, " ")
+			if len(token) < 2 {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
 			isValid, err := m.authService.ValidateToken(token[1])
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
