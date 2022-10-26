@@ -55,7 +55,9 @@ func (bc *BonusClient) CreateOrder(orderNumber string) (*Response, error) {
 		return nil, fmt.Errorf("unable to send request [POST] to /api/orders/: %w", applicationerrors.ErrServiceUnavailable)
 	}
 	defer res.Body.Close()
-	log.Info().Msg("order created in black box")
+	log.Info().Fields(map[string]interface{}{
+		"order_number": orderNumber,
+	}).Msg("order created in black box")
 
 	return &Response{Code: res.StatusCode}, nil
 }
@@ -84,13 +86,7 @@ func (bc *BonusClient) GetOrderDetails(orderNumber string) (*OrderDetailsRespons
 		if err != nil {
 			return nil, fmt.Errorf("unable to unmarshal json with order details: %w", err)
 		}
-		log.Info().Fields(map[string]interface{}{
-			"order details": response,
-		}).Msg("order details")
 	}
-	log.Info().Fields(map[string]interface{}{
-		"response": body,
-	}).Msg("Order details from service")
 
 	return &response, nil
 }

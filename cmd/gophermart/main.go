@@ -27,7 +27,5 @@ func main() {
 
 	go app.Services.OrderService.PollPendingOrders(context.Background())
 
-	if err := srv.ListenAndServe(); err != nil {
-		log.Panic().Err(err)
-	}
+	log.Panic().Err(srv.ListenAndServe())
 }

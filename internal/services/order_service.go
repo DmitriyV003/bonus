@@ -113,13 +113,11 @@ func (myself *OrderService) PollPendingOrders(ctx context.Context) {
 				user, err := myself.users.GetByID(ctx, order.User.ID)
 				if err != nil && !errors.Is(err, applicationerrors.ErrNotFound) {
 					cancel()
-					log.Error().Err(err).Msg("error occurred")
 					return
 				}
 
 				err = myself.sendAndUpdateOrder(ctx, user, order)
 				if err != nil && !errors.Is(err, applicationerrors.ErrServiceUnavailable) {
-					log.Error().Err(err).Msg("error occurred")
 					cancel()
 				}
 			}
@@ -136,7 +134,6 @@ func (myself *OrderService) sendAndUpdateOrder(ctx context.Context, user *models
 
 	orderDetails, err := myself.bonusClient.GetOrderDetails(order.Number)
 	if err != nil {
-		log.Error().Err(err)
 		return fmt.Errorf("unable to get order details: %w", err)
 	}
 
@@ -145,7 +142,6 @@ func (myself *OrderService) sendAndUpdateOrder(ctx context.Context, user *models
 		order.Amount = int64(orderDetails.Amount * 10000)
 		err = myself.orders.UpdateByID(context.Background(), order)
 		if err != nil {
-			log.Error().Err(err)
 			return fmt.Errorf("unable to create order in db: %w", err)
 		}
 
@@ -155,6 +151,12 @@ func (myself *OrderService) sendAndUpdateOrder(ctx context.Context, user *models
 				return fmt.Errorf("unable to create payment: %w", err)
 			}
 		}
+
+		log.Info().Fields(map[string]interface{}{
+			"order_number": order.Number,
+			"status":       order.Status,
+			"amount":       order.Amount,
+		}).Msg("order details fetched successfully")
 	}
 
 	return nil

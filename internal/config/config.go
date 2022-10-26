@@ -29,10 +29,6 @@ func (conf *Config) ParseEnv() {
 	flag.PrintDefaults()
 	flag.Parse()
 
-	log.Info().Fields(map[string]interface{}{
-		"defaultAccrualSystemAddress": *accrualAddress,
-	}).Msg("Env")
-
 	if conf.Address == "" {
 		conf.Address = *address
 	}
