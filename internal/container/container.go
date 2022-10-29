@@ -1,14 +1,14 @@
 package container
 
 import (
-	"github.com/DmitriyV003/bonus/internal/repository"
+	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
 	"github.com/DmitriyV003/bonus/internal/services"
 )
 
 type Repositories struct {
-	Users    *repository.UserRepository
-	Orders   *repository.OrderRepository
-	Payments *repository.PaymentRepository
+	Users    interfaces.UserRepository
+	Orders   interfaces.OrderRepository
+	Payments interfaces.PaymentRepository
 }
 
 type Services struct {

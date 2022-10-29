@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"context"
-	"github.com/DmitriyV003/bonus/internal/repository"
+	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"net/http"
 	"strconv"
@@ -11,10 +11,10 @@ import (
 
 type AuthMiddleware struct {
 	authService *services.AuthService
-	users       *repository.UserRepository
+	users       interfaces.UserRepository
 }
 
-func NewAuthMiddleware(authService *services.AuthService, users *repository.UserRepository) *AuthMiddleware {
+func NewAuthMiddleware(authService *services.AuthService, users interfaces.UserRepository) *AuthMiddleware {
 	return &AuthMiddleware{
 		authService: authService,
 		users:       users,
