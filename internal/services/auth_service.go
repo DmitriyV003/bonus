@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/DmitriyV003/bonus/internal/models"
-	"github.com/DmitriyV003/bonus/internal/repository"
+	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
@@ -23,7 +23,7 @@ func GetLoggedInUser() *models.User {
 }
 
 type AuthService struct {
-	users  *repository.UserRepository
+	users  interfaces.UserRepository
 	secret string
 }
 
@@ -32,7 +32,7 @@ type Token struct {
 	Claims map[string]interface{}
 }
 
-func NewAuthService(secret string, users *repository.UserRepository) *AuthService {
+func NewAuthService(secret string, users interfaces.UserRepository) *AuthService {
 	return &AuthService{
 		secret: secret,
 		users:  users,

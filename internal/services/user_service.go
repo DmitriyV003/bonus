@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/models"
-	"github.com/DmitriyV003/bonus/internal/repository"
+	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
 	"github.com/DmitriyV003/bonus/internal/requests"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
@@ -15,16 +15,16 @@ import (
 type UserService struct {
 	validator      OrderValidator
 	paymentService *PaymentService
-	users          *repository.UserRepository
-	payments       *repository.PaymentRepository
+	users          interfaces.UserRepository
+	payments       interfaces.PaymentRepository
 	authService    *AuthService
 }
 
 func NewUserService(
 	validator OrderValidator,
 	paymentService *PaymentService,
-	users *repository.UserRepository,
-	payments *repository.PaymentRepository,
+	users interfaces.UserRepository,
+	payments interfaces.PaymentRepository,
 	authService *AuthService,
 ) *UserService {
 	return &UserService{

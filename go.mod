@@ -7,7 +7,8 @@ require (
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golang-jwt/jwt/v4 v4.4.2
-	github.com/jackc/pgx/v5 v5.0.2
+	github.com/golang/mock v1.6.0
+	github.com/jackc/pgx/v4 v4.17.2
 	github.com/rs/zerolog v1.28.0
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
 )
@@ -22,9 +23,7 @@ require (
 	github.com/jackc/pgproto3/v2 v2.3.1 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/jackc/pgtype v1.12.0 // indirect
-	github.com/jackc/pgx/v4 v4.17.2 // indirect
 	github.com/jackc/puddle v1.3.0 // indirect
-	github.com/jackc/puddle/v2 v2.0.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
