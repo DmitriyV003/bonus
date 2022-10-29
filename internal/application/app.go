@@ -104,7 +104,6 @@ func (app *App) migrate() {
 	}
 
 	var file *os.File
-	defer file.Close()
 
 	for _, migrationFile := range migrations {
 		file, err = os.Open(fmt.Sprintf("migrations/%s", migrationFile.Name()))
