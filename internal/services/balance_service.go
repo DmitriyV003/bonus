@@ -4,16 +4,16 @@ import (
 	"context"
 	"fmt"
 	"github.com/DmitriyV003/bonus/internal/models"
-	"github.com/DmitriyV003/bonus/internal/repository"
+	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
 	"github.com/DmitriyV003/bonus/internal/resources"
 )
 
 type BalanceService struct {
-	payments *repository.PaymentRepository
-	users    *repository.UserRepository
+	payments interfaces.PaymentRepository
+	users    interfaces.UserRepository
 }
 
-func NewBalanceService(payments *repository.PaymentRepository, users *repository.UserRepository) *BalanceService {
+func NewBalanceService(payments interfaces.PaymentRepository, users interfaces.UserRepository) *BalanceService {
 	return &BalanceService{
 		payments: payments,
 		users:    users,
