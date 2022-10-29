@@ -4,18 +4,18 @@ import (
 	"context"
 	"fmt"
 	"github.com/DmitriyV003/bonus/internal/models"
-	"github.com/DmitriyV003/bonus/internal/repository"
+	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
 	"github.com/rs/zerolog/log"
 	"time"
 )
 
 type PaymentService struct {
-	payments       *repository.PaymentRepository
-	users          *repository.UserRepository
+	payments       interfaces.PaymentRepository
+	users          interfaces.UserRepository
 	balanceService *BalanceService
 }
 
-func NewPaymentService(payments *repository.PaymentRepository, users *repository.UserRepository, balanceService *BalanceService) *PaymentService {
+func NewPaymentService(payments interfaces.PaymentRepository, users interfaces.UserRepository, balanceService *BalanceService) *PaymentService {
 	return &PaymentService{
 		payments:       payments,
 		users:          users,
