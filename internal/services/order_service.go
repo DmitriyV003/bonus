@@ -5,10 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
-	"github.com/DmitriyV003/bonus/internal/clients"
+	"github.com/DmitriyV003/bonus/internal/clients/clientinterfaces"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/DmitriyV003/bonus/internal/policy"
 	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
+	interfaces2 "github.com/DmitriyV003/bonus/internal/services/interfaces"
 	"github.com/rs/zerolog/log"
 	"strconv"
 	"time"
@@ -16,18 +17,18 @@ import (
 
 type OrderService struct {
 	validator      OrderValidator
-	bonusClient    *clients.BonusClient
+	bonusClient    clientinterfaces.BonusClient
 	orders         interfaces.OrderRepository
 	users          interfaces.UserRepository
-	paymentService *PaymentService
+	paymentService interfaces2.PaymentService
 }
 
 func NewOrderService(
 	validator OrderValidator,
-	bonusClient *clients.BonusClient,
+	bonusClient clientinterfaces.BonusClient,
 	orders interfaces.OrderRepository,
 	users interfaces.UserRepository,
-	paymentService *PaymentService,
+	paymentService interfaces2.PaymentService,
 ) *OrderService {
 	return &OrderService{
 		validator:      validator,

@@ -2,7 +2,7 @@
 // Source: ./internal/repository/interfaces/order_repository.go
 
 // Package mock_interfaces is a generated GoMock package.
-package mock_interfaces
+package mocks
 
 import (
 	context "context"

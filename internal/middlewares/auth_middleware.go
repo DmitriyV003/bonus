@@ -4,17 +4,18 @@ import (
 	"context"
 	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
 	"github.com/DmitriyV003/bonus/internal/services"
+	serviceinterfaces "github.com/DmitriyV003/bonus/internal/services/interfaces"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
 type AuthMiddleware struct {
-	authService *services.AuthService
+	authService serviceinterfaces.AuthService
 	users       interfaces.UserRepository
 }
 
-func NewAuthMiddleware(authService *services.AuthService, users interfaces.UserRepository) *AuthMiddleware {
+func NewAuthMiddleware(authService serviceinterfaces.AuthService, users interfaces.UserRepository) *AuthMiddleware {
 	return &AuthMiddleware{
 		authService: authService,
 		users:       users,
@@ -46,7 +47,7 @@ func (m *AuthMiddleware) Pipe() func(next http.Handler) http.Handler {
 				return
 			}
 
-			newToken := services.Token{
+			newToken := serviceinterfaces.Token{
 				Value:  token[1],
 				Claims: map[string]interface{}{},
 			}

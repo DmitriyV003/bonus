@@ -23,7 +23,7 @@ func NewPaymentService(payments interfaces.PaymentRepository, users interfaces.U
 	}
 }
 
-func (ps *PaymentService) CreateWithdrawPayment(ctx context.Context, user *models.User, amount int64, orderNumber string) error {
+func (ps *PaymentService) CreateWithdrawPayment(ctx context.Context, user *models.User, amount int64, orderNumber string) (*models.Payment, error) {
 	payment := models.Payment{
 		Type:            models.WithdrawType,
 		TransactionType: models.CREDIT,
@@ -35,13 +35,9 @@ func (ps *PaymentService) CreateWithdrawPayment(ctx context.Context, user *model
 
 	createdPayment, err := ps.create(ctx, &payment)
 	if err != nil {
-		return fmt.Errorf("error to create payment in db: %w", err)
+		return nil, fmt.Errorf("error to create payment in db: %w", err)
 	}
 
-	err = ps.balanceService.Withdraw(ctx, createdPayment, user)
-	if err != nil {
-		return fmt.Errorf("error to update user balance in db: %w", err)
-	}
 	log.Info().Fields(map[string]interface{}{
 		"user_id":          user.ID,
 		"payment_id":       createdPayment.ID,
@@ -50,7 +46,7 @@ func (ps *PaymentService) CreateWithdrawPayment(ctx context.Context, user *model
 		"transaction_type": createdPayment.TransactionType,
 	}).Msg("Withdraw payment created")
 
-	return nil
+	return createdPayment, nil
 }
 
 func (ps *PaymentService) CreateAccrualPayment(ctx context.Context, user *models.User, amount int64, orderNumber string) error {

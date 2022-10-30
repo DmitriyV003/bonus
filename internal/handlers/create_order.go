@@ -4,15 +4,16 @@ import (
 	"encoding/json"
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/services"
-	"io/ioutil"
+	"github.com/DmitriyV003/bonus/internal/services/interfaces"
+	"io"
 	"net/http"
 )
 
 type CreateOrderHandler struct {
-	orderService *services.OrderService
+	orderService interfaces.OrderService
 }
 
-func NewCreateOrderHandler(orderService *services.OrderService) *CreateOrderHandler {
+func NewCreateOrderHandler(orderService interfaces.OrderService) *CreateOrderHandler {
 	return &CreateOrderHandler{
 		orderService: orderService,
 	}
@@ -20,9 +21,9 @@ func NewCreateOrderHandler(orderService *services.OrderService) *CreateOrderHand
 
 func (h *CreateOrderHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
-		response, err := ioutil.ReadAll(request.Body)
+		response, err := io.ReadAll(request.Body)
 		if err != nil {
-			applicationerrors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err, nil, "error to read body")
 			return
 		}
 		defer request.Body.Close()
@@ -34,13 +35,19 @@ func (h *CreateOrderHandler) Handle() http.HandlerFunc {
 
 		order, err := h.orderService.Create(request.Context(), services.GetLoggedInUser(), string(response))
 		if err != nil {
-			applicationerrors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err, map[string]interface{}{
+				"user_id": services.GetLoggedInUser().ID,
+			}, "error to create order")
 			return
 		}
 
 		data, err := json.Marshal(order)
+
 		if err != nil {
-			applicationerrors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err, map[string]interface{}{
+				"user_id":  services.GetLoggedInUser().ID,
+				"order_id": order.ID,
+			}, "error to marshal order")
 			return
 		}
 
