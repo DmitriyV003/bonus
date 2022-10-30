@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
+	serviceinterfaces "github.com/DmitriyV003/bonus/internal/services/interfaces"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
@@ -27,11 +28,6 @@ type AuthService struct {
 	secret string
 }
 
-type Token struct {
-	Value  string
-	Claims map[string]interface{}
-}
-
 func NewAuthService(secret string, users interfaces.UserRepository) *AuthService {
 	return &AuthService{
 		secret: secret,
@@ -39,7 +35,7 @@ func NewAuthService(secret string, users interfaces.UserRepository) *AuthService
 	}
 }
 
-func (myself *AuthService) LoginByUser(user *models.User) (*Token, error) {
+func (myself *AuthService) LoginByUser(user *models.User) (*serviceinterfaces.Token, error) {
 	token, err := myself.generateJwt(user)
 	if err != nil {
 		return nil, fmt.Errorf("error to generate jwt to login user: %w", err)
@@ -48,7 +44,7 @@ func (myself *AuthService) LoginByUser(user *models.User) (*Token, error) {
 	return token, nil
 }
 
-func (myself *AuthService) Login(ctx context.Context, login string, password string) (*Token, error) {
+func (myself *AuthService) Login(ctx context.Context, login string, password string) (*serviceinterfaces.Token, error) {
 	user, err := myself.users.GetByLogin(ctx, login)
 	if err != nil {
 		return nil, fmt.Errorf("error to get user by login: %w", err)
@@ -80,7 +76,7 @@ func (myself *AuthService) ValidateToken(token string) (bool, error) {
 	return parsedToken.Valid, err
 }
 
-func (myself *AuthService) ParseTokenWithClaims(token *Token) error {
+func (myself *AuthService) ParseTokenWithClaims(token *serviceinterfaces.Token) error {
 	claims := jwt.MapClaims{}
 	_, err := jwt.ParseWithClaims(token.Value, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(myself.secret), nil
@@ -93,7 +89,7 @@ func (myself *AuthService) ParseTokenWithClaims(token *Token) error {
 	return nil
 }
 
-func (myself *AuthService) generateJwt(user *models.User) (*Token, error) {
+func (myself *AuthService) generateJwt(user *models.User) (*serviceinterfaces.Token, error) {
 	token := jwt.New(jwt.SigningMethodHS512)
 
 	claims := jwt.MapClaims{}
@@ -108,5 +104,5 @@ func (myself *AuthService) generateJwt(user *models.User) (*Token, error) {
 		return nil, fmt.Errorf("error sign token: %w", err)
 	}
 
-	return &Token{Value: genToken}, nil
+	return &serviceinterfaces.Token{Value: genToken}, nil
 }

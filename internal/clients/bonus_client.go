@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
+	"github.com/DmitriyV003/bonus/internal/clients/clientinterfaces"
 	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
@@ -19,16 +20,6 @@ type createOrderRequest struct {
 	Order string `json:"order"`
 }
 
-type Response struct {
-	Code int
-}
-
-type OrderDetailsResponse struct {
-	Order  string  `json:"order,omitempty"`
-	Status string  `json:"status,omitempty"`
-	Amount float64 `json:"accrual,omitempty"`
-}
-
 func NewBonusClient(url string) *BonusClient {
 	return &BonusClient{
 		client: &http.Client{},
@@ -36,7 +27,7 @@ func NewBonusClient(url string) *BonusClient {
 	}
 }
 
-func (bc *BonusClient) CreateOrder(orderNumber string) (*Response, error) {
+func (bc *BonusClient) CreateOrder(orderNumber string) (*clientinterfaces.Response, error) {
 	data := createOrderRequest{Order: orderNumber}
 	byteData, err := json.Marshal(data)
 	if err != nil {
@@ -57,10 +48,10 @@ func (bc *BonusClient) CreateOrder(orderNumber string) (*Response, error) {
 	defer res.Body.Close()
 	log.Info().Msg("order created in black box")
 
-	return &Response{Code: res.StatusCode}, nil
+	return &clientinterfaces.Response{Code: res.StatusCode}, nil
 }
 
-func (bc *BonusClient) GetOrderDetails(orderNumber string) (*OrderDetailsResponse, error) {
+func (bc *BonusClient) GetOrderDetails(orderNumber string) (*clientinterfaces.OrderDetailsResponse, error) {
 	request, _ := http.NewRequest(http.MethodGet, bc.getURL(fmt.Sprintf("api/orders/%s", orderNumber)), nil)
 
 	res, err := bc.client.Do(request)
@@ -69,7 +60,7 @@ func (bc *BonusClient) GetOrderDetails(orderNumber string) (*OrderDetailsRespons
 	}
 	defer res.Body.Close()
 
-	var response OrderDetailsResponse
+	var response clientinterfaces.OrderDetailsResponse
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read response body: %w", err)

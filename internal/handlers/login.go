@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/requests"
-	"github.com/DmitriyV003/bonus/internal/services"
+	serviceinterfaces "github.com/DmitriyV003/bonus/internal/services/interfaces"
 	"github.com/go-playground/validator/v10"
 	"net/http"
 )
 
 type LoginHandler struct {
-	authService *services.AuthService
+	authService serviceinterfaces.AuthService
 }
 
-func NewLoginHandler(authService *services.AuthService) *LoginHandler {
+func NewLoginHandler(authService serviceinterfaces.AuthService) *LoginHandler {
 	return &LoginHandler{
 		authService: authService,
 	}
@@ -27,7 +27,7 @@ func (h LoginHandler) Handle() http.HandlerFunc {
 		validate := validator.New()
 
 		if err := json.NewDecoder(request.Body).Decode(&loginRequest); err != nil {
-			applicationerrors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err, nil)
 			return
 		}
 
@@ -38,7 +38,7 @@ func (h LoginHandler) Handle() http.HandlerFunc {
 
 		token, err := h.authService.Login(request.Context(), loginRequest.Login, loginRequest.Password)
 		if err != nil {
-			applicationerrors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err, nil)
 			return
 		}
 
