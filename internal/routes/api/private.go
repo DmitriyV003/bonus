@@ -26,7 +26,7 @@ func (p *Private) Routes() *chi.Mux {
 	authService := services.NewAuthService(p.Conf.JwtSecret, p.Repositories.Users)
 	balanceService := services.NewBalanceService(p.Repositories.Payments, p.Repositories.Users)
 	paymentService := services.NewPaymentService(p.Repositories.Payments, p.Repositories.Users, balanceService)
-	userService := services.NewUserService(luhnValidator, paymentService, p.Repositories.Users, p.Repositories.Payments, authService)
+	userService := services.NewUserService(luhnValidator, paymentService, p.Repositories.Users, p.Repositories.Payments, authService, balanceService)
 	orderService := services.NewOrderService(luhnValidator, bonusClient, p.Repositories.Orders, p.Repositories.Users, paymentService)
 
 	authMiddleware := middlewares.NewAuthMiddleware(authService, p.Repositories.Users)
