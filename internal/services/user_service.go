@@ -7,6 +7,7 @@ import (
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
 	"github.com/DmitriyV003/bonus/internal/requests"
+	serviceinterfaces "github.com/DmitriyV003/bonus/internal/services/interfaces"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
 	"time"
@@ -14,18 +15,20 @@ import (
 
 type UserService struct {
 	validator      OrderValidator
-	paymentService *PaymentService
+	paymentService serviceinterfaces.PaymentService
 	users          interfaces.UserRepository
 	payments       interfaces.PaymentRepository
-	authService    *AuthService
+	authService    serviceinterfaces.AuthService
+	balanceService serviceinterfaces.BalanceService
 }
 
 func NewUserService(
 	validator OrderValidator,
-	paymentService *PaymentService,
+	paymentService serviceinterfaces.PaymentService,
 	users interfaces.UserRepository,
 	payments interfaces.PaymentRepository,
-	authService *AuthService,
+	authService serviceinterfaces.AuthService,
+	balanceService serviceinterfaces.BalanceService,
 ) *UserService {
 	return &UserService{
 		validator:      validator,
@@ -33,10 +36,11 @@ func NewUserService(
 		users:          users,
 		payments:       payments,
 		authService:    authService,
+		balanceService: balanceService,
 	}
 }
 
-func (u *UserService) Create(ctx context.Context, request *requests.RegistrationRequest) (*Token, error) {
+func (u *UserService) Create(ctx context.Context, request *requests.RegistrationRequest) (*serviceinterfaces.Token, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
 	if err != nil {
 		return nil, fmt.Errorf("error to generate hash from password: %w", err)
@@ -73,7 +77,7 @@ func (u *UserService) Withdraw(ctx context.Context, user *models.User, orderNumb
 
 	isValid := u.validator.Validate(parsedOderNumber)
 	if !isValid {
-		return fmt.Errorf("unable to validate order number %w", applicationerrors.ErrInvalidOrderNumber)
+		return fmt.Errorf("unable to validate order number: %w", applicationerrors.ErrInvalidOrderNumber)
 	}
 
 	sumToWithdraw := int64(sum * 10000)
@@ -81,9 +85,14 @@ func (u *UserService) Withdraw(ctx context.Context, user *models.User, orderNumb
 		return fmt.Errorf("unable to validate order number %w", applicationerrors.ErrLowUserABalance)
 	}
 
-	err = u.paymentService.CreateWithdrawPayment(ctx, user, sumToWithdraw, orderNumber)
+	payment, err := u.paymentService.CreateWithdrawPayment(ctx, user, sumToWithdraw, orderNumber)
 	if err != nil {
 		return fmt.Errorf("unable ro create payment for withdraw %w", err)
+	}
+
+	err = u.balanceService.Withdraw(ctx, payment, user)
+	if err != nil {
+		return fmt.Errorf("error to update user balance: %w", err)
 	}
 
 	return nil

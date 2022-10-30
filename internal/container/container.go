@@ -2,7 +2,7 @@ package container
 
 import (
 	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
-	"github.com/DmitriyV003/bonus/internal/services"
+	serviceinterfaces "github.com/DmitriyV003/bonus/internal/services/interfaces"
 )
 
 type Repositories struct {
@@ -12,5 +12,5 @@ type Repositories struct {
 }
 
 type Services struct {
-	OrderService *services.OrderService
+	OrderService serviceinterfaces.OrderService
 }
