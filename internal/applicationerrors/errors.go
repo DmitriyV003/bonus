@@ -3,9 +3,12 @@ package applicationerrors
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/rs/zerolog/log"
 	"net/http"
+	"runtime"
+	"strings"
 )
 
 var ErrNotFound = errors.New("not found")
@@ -37,8 +40,13 @@ func WriteHTTPError(w *http.ResponseWriter, status int, errs error) {
 	(*w).Write(res)
 }
 
-func SwitchError(w *http.ResponseWriter, err error) {
-	log.Error().Err(err).Msg("Error occurred")
+func SwitchError(w *http.ResponseWriter, err error, fields map[string]interface{}, messages ...string) {
+	pc, file, line, ok := runtime.Caller(1)
+	errorString := ""
+	if ok {
+		errorString = fmt.Sprintf("Called from %s, line #%d, func: %v\n", file, line, runtime.FuncForPC(pc).Name())
+	}
+	log.Error().Fields(fields).Err(err).Msg(strings.Join(messages, "; ") + errorString)
 	switch {
 	case errors.Is(err, ErrNotFound):
 		WriteHTTPError(w, http.StatusNotFound, nil)

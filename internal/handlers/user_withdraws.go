@@ -5,14 +5,15 @@ import (
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/resources"
 	"github.com/DmitriyV003/bonus/internal/services"
+	"github.com/DmitriyV003/bonus/internal/services/interfaces"
 	"net/http"
 )
 
 type UserWithdawsHandler struct {
-	userService *services.UserService
+	userService interfaces.UserService
 }
 
-func NewUserWithdawsHandler(us *services.UserService) *UserWithdawsHandler {
+func NewUserWithdawsHandler(us interfaces.UserService) *UserWithdawsHandler {
 	return &UserWithdawsHandler{
 		userService: us,
 	}
@@ -22,7 +23,7 @@ func (h *UserWithdawsHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		payments, err := h.userService.AllWithdrawsByUser(request.Context(), services.GetLoggedInUser())
 		if err != nil {
-			applicationerrors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err, nil)
 			return
 		}
 
@@ -34,7 +35,7 @@ func (h *UserWithdawsHandler) Handle() http.HandlerFunc {
 
 		data, err := json.Marshal(paymentsToReturn)
 		if err != nil {
-			applicationerrors.SwitchError(&res, err)
+			applicationerrors.SwitchError(&res, err, nil)
 			return
 		}
 
