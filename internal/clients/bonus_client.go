@@ -55,6 +55,7 @@ func (bc *BonusClient) GetOrderDetails(orderNumber string) (*clientinterfaces.Or
 	request, _ := http.NewRequest(http.MethodGet, bc.getURL(fmt.Sprintf("api/orders/%s", orderNumber)), nil)
 
 	res, err := bc.client.Do(request)
+	fmt.Println(res, err)
 	if err != nil {
 		return nil, fmt.Errorf("unable to send request [GET] to /api/orders/: %w", applicationerrors.ErrServiceUnavailable)
 	}
@@ -78,6 +79,8 @@ func (bc *BonusClient) GetOrderDetails(orderNumber string) (*clientinterfaces.Or
 		log.Info().Fields(map[string]interface{}{
 			"order details": response,
 		}).Msg("order details")
+	} else {
+		return nil, fmt.Errorf("unable to send request [GET] to /api/orders/: %w", applicationerrors.ErrServiceUnavailable)
 	}
 	log.Info().Fields(map[string]interface{}{
 		"response": body,
