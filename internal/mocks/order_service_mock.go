@@ -66,9 +66,11 @@ func (mr *MockOrderServiceMockRecorder) OrdersByUser(ctx, user interface{}) *gom
 }
 
 // PollPendingOrders mocks base method.
-func (m *MockOrderService) PollPendingOrders(ctx context.Context) {
+func (m *MockOrderService) PollPendingOrders(ctx context.Context) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "PollPendingOrders", ctx)
+	ret := m.ctrl.Call(m, "PollPendingOrders", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // PollPendingOrders indicates an expected call of PollPendingOrders.
