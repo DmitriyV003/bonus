@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"github.com/DmitriyV003/bonus/internal/clients"
 	"github.com/DmitriyV003/bonus/internal/config"
 	"github.com/DmitriyV003/bonus/internal/container"
@@ -9,7 +8,6 @@ import (
 	"github.com/DmitriyV003/bonus/internal/middlewares"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"github.com/go-chi/chi/v5"
-	"net/http"
 )
 
 type Private struct {
@@ -43,11 +41,6 @@ func (p *Private) Routes() *chi.Mux {
 			r.Get("/balance", handlers.NewUserBalanceHandler(balanceService).Handle())
 			r.Post("/balance/withdraw", handlers.NewWithdrawHandler(userService).Handle())
 			r.Get("/withdrawals", handlers.NewUserWithdawsHandler(userService).Handle())
-
-			r.Get("/test", func(writer http.ResponseWriter, request *http.Request) {
-				fmt.Println("AUTH gone")
-				fmt.Println(services.GetLoggedInUser())
-			})
 		})
 
 	})
