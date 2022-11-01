@@ -17,7 +17,7 @@ type Order struct {
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 }
 
-func NewOrder(number string, status string, amount int64, user *User) *Order {
+var NewOrder = func(number string, status string, amount int64, user *User) *Order {
 	return &Order{
 		Number:    number,
 		Amount:    amount,
