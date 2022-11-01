@@ -65,6 +65,7 @@ func (myself *OrderService) Create(ctx context.Context, user *models.User, order
 	}
 
 	order = models.NewOrder(orderNumber, models.NewStatus, 0, user)
+	fmt.Println(order)
 	order, err = myself.orders.Create(ctx, order)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create order in db: %w", err)
@@ -87,21 +88,18 @@ func (myself *OrderService) OrdersByUser(ctx context.Context, user *models.User)
 	return orders, nil
 }
 
-func (myself *OrderService) PollPendingOrders(ctx context.Context) {
+func (myself *OrderService) PollPendingOrders(ctx context.Context) error {
 	ticker := time.NewTicker(1 * time.Second)
-	ctx, cancel := context.WithCancel(ctx)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ctx.Done():
-			cancel()
-			return
+			return errors.New("context cancelled in polling orders")
 		case <-ticker.C:
 			orders, err := myself.orders.AllPending(ctx)
 			if err != nil {
-				cancel()
-				return
+				return err
 			}
 
 			for _, order := range orders {
@@ -113,15 +111,14 @@ func (myself *OrderService) PollPendingOrders(ctx context.Context) {
 
 				user, err := myself.users.GetByID(ctx, order.User.ID)
 				if err != nil && !errors.Is(err, applicationerrors.ErrNotFound) {
-					cancel()
 					log.Error().Err(err).Msg("error occurred")
-					return
+					return err
 				}
 
 				err = myself.sendAndUpdateOrder(ctx, user, order)
 				if err != nil && !errors.Is(err, applicationerrors.ErrServiceUnavailable) {
 					log.Error().Err(err).Msg("error occurred")
-					cancel()
+					return err
 				}
 			}
 		}
