@@ -2,16 +2,18 @@ package main
 
 import (
 	"context"
-	"github.com/DmitriyV003/bonus/internal/application"
-	"github.com/DmitriyV003/bonus/internal/config"
-	"github.com/DmitriyV003/bonus/internal/container"
-	"github.com/rs/zerolog/log"
-	"golang.org/x/sync/errgroup"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"golang.org/x/sync/errgroup"
+
+	"github.com/DmitriyV003/bonus/internal/application"
+	"github.com/DmitriyV003/bonus/internal/config"
+	"github.com/DmitriyV003/bonus/internal/container"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {

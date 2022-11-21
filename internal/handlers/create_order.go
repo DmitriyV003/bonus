@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
+	"net/http"
+
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"github.com/DmitriyV003/bonus/internal/services/interfaces"
-	"io"
-	"net/http"
 )
 
 type CreateOrderHandler struct {

@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/clients/clientinterfaces"
 	"github.com/rs/zerolog/log"
-	"io"
-	"net/http"
 )
 
 type BonusClient struct {

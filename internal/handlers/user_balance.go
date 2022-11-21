@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"github.com/DmitriyV003/bonus/internal/services/interfaces"
-	"net/http"
 )
 
 type UserBalanceHandler struct {

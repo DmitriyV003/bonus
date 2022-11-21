@@ -2,12 +2,13 @@ package services
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/DmitriyV003/bonus/internal/mocks"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/go-playground/assert/v2"
 	"github.com/golang/mock/gomock"
-	"testing"
-	"time"
 )
 
 func TestBalanceService_Accrual(t *testing.T) {

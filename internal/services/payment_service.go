@@ -3,10 +3,11 @@ package services
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
 	"github.com/rs/zerolog/log"
-	"time"
 )
 
 type PaymentService struct {

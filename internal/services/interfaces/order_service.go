@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+
 	"github.com/DmitriyV003/bonus/internal/models"
 )
 

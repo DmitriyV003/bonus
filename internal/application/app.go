@@ -6,18 +6,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"os"
+
 	"github.com/DmitriyV003/bonus/internal/config"
 	"github.com/DmitriyV003/bonus/internal/container"
 	"github.com/DmitriyV003/bonus/internal/repository"
-	"github.com/DmitriyV003/bonus/internal/routes/api"
+	routes "github.com/DmitriyV003/bonus/internal/routes/api"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"net/http"
-	"os"
 )
 
 type App struct {
