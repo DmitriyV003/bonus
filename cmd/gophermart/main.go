@@ -10,6 +10,8 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	_ "net/http/pprof"
+
 	"github.com/DmitriyV003/bonus/internal/application"
 	"github.com/DmitriyV003/bonus/internal/config"
 	"github.com/DmitriyV003/bonus/internal/container"
@@ -22,6 +24,7 @@ func main() {
 		Repositories: &container.Repositories{},
 		Services:     &container.Services{},
 	}
+	const pprofPort = ":8082"
 	mainCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
@@ -50,6 +53,8 @@ func main() {
 	g.Go(func() error {
 		return app.Services.OrderService.PollPendingOrders(gCtx)
 	})
+
+	http.ListenAndServe(pprofPort, nil)
 
 	if err := g.Wait(); err != nil {
 		log.Error().Err(err).Msg("Server down")
