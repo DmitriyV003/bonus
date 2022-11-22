@@ -3,11 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/requests"
 	serviceinterfaces "github.com/DmitriyV003/bonus/internal/services/interfaces"
 	"github.com/go-playground/validator/v10"
-	"net/http"
 )
 
 type LoginHandler struct {
@@ -20,6 +21,7 @@ func NewLoginHandler(authService serviceinterfaces.AuthService) *LoginHandler {
 	}
 }
 
+// Handle Login user via credentials
 func (h LoginHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		var loginRequest requests.LoginRequest

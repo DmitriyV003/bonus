@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
+	"net/http"
+
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"github.com/DmitriyV003/bonus/internal/services/interfaces"
-	"io"
-	"net/http"
 )
 
 type CreateOrderHandler struct {
@@ -19,6 +20,9 @@ func NewCreateOrderHandler(orderService interfaces.OrderService) *CreateOrderHan
 	}
 }
 
+// Handle Create order with valid given number
+// Order number check with Luhn algorithm
+// Available for authorized users
 func (h *CreateOrderHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		response, err := io.ReadAll(request.Body)

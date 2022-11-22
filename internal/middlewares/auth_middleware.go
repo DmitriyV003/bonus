@@ -2,12 +2,13 @@ package middlewares
 
 import (
 	"context"
-	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
-	"github.com/DmitriyV003/bonus/internal/services"
-	serviceinterfaces "github.com/DmitriyV003/bonus/internal/services/interfaces"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
+	"github.com/DmitriyV003/bonus/internal/services"
+	serviceinterfaces "github.com/DmitriyV003/bonus/internal/services/interfaces"
 )
 
 type AuthMiddleware struct {

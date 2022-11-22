@@ -3,14 +3,16 @@ package services
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
 	"github.com/DmitriyV003/bonus/internal/requests"
 	serviceinterfaces "github.com/DmitriyV003/bonus/internal/services/interfaces"
-	"golang.org/x/crypto/bcrypt"
-	"strconv"
-	"time"
 )
 
 type UserService struct {

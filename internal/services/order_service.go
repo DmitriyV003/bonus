@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/clients/clientinterfaces"
 	"github.com/DmitriyV003/bonus/internal/models"
@@ -11,8 +14,6 @@ import (
 	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
 	interfaces2 "github.com/DmitriyV003/bonus/internal/services/interfaces"
 	"github.com/rs/zerolog/log"
-	"strconv"
-	"time"
 )
 
 type OrderService struct {

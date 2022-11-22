@@ -4,14 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/clients/clientinterfaces"
 	"github.com/DmitriyV003/bonus/internal/mocks"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestOrderService_Create(t *testing.T) {

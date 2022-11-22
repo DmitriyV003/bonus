@@ -4,13 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/DmitriyV003/bonus/internal/repository/interfaces"
 	serviceinterfaces "github.com/DmitriyV003/bonus/internal/services/interfaces"
 	"github.com/golang-jwt/jwt/v4"
-	"golang.org/x/crypto/bcrypt"
-	"strconv"
-	"time"
 )
 
 var loggedInUser *models.User

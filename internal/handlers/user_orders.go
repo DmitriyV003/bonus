@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/resources"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"github.com/DmitriyV003/bonus/internal/services/interfaces"
-	"net/http"
 )
 
 type UserOrdersHandler struct {
@@ -19,6 +20,8 @@ func NewUserOrdersHandler(orderService interfaces.OrderService) *UserOrdersHandl
 	}
 }
 
+// Handle Get all user orders
+// Available for authorized users
 func (h *UserOrdersHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		orders, err := h.orderService.OrdersByUser(request.Context(), services.GetLoggedInUser())

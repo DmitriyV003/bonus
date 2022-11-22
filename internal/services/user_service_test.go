@@ -2,14 +2,15 @@ package services
 
 import (
 	"context"
+	"strconv"
+	"testing"
+	"time"
+
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/mocks"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"strconv"
-	"testing"
-	"time"
 )
 
 func TestUserService_Withdraw(t *testing.T) {

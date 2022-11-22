@@ -3,11 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/requests"
 	"github.com/DmitriyV003/bonus/internal/services/interfaces"
 	"github.com/go-playground/validator/v10"
-	"net/http"
 )
 
 type RegisterHandler struct {
@@ -20,6 +21,7 @@ func NewRegisterHandler(userService interfaces.UserService) *RegisterHandler {
 	}
 }
 
+// Handle register users with Login, Password
 func (h *RegisterHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		var regRequest requests.RegistrationRequest

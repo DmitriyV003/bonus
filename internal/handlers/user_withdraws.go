@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/resources"
 	"github.com/DmitriyV003/bonus/internal/services"
 	"github.com/DmitriyV003/bonus/internal/services/interfaces"
-	"net/http"
 )
 
 type UserWithdawsHandler struct {
@@ -19,6 +20,7 @@ func NewUserWithdawsHandler(us interfaces.UserService) *UserWithdawsHandler {
 	}
 }
 
+// Handle Get all user withdrawals
 func (h *UserWithdawsHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		payments, err := h.userService.AllWithdrawsByUser(request.Context(), services.GetLoggedInUser())

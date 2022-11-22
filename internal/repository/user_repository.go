@@ -3,11 +3,12 @@ package repository
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/DmitriyV003/bonus/internal/applicationerrors"
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"time"
 )
 
 type UserRepository struct {
