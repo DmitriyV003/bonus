@@ -21,6 +21,7 @@ func NewRegisterHandler(userService interfaces.UserService) *RegisterHandler {
 	}
 }
 
+// Handle register users with Login, Password
 func (h *RegisterHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		var regRequest requests.RegistrationRequest

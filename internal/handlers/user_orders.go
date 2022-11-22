@@ -20,6 +20,8 @@ func NewUserOrdersHandler(orderService interfaces.OrderService) *UserOrdersHandl
 	}
 }
 
+// Handle Get all user orders
+// Available for authorized users
 func (h *UserOrdersHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		orders, err := h.orderService.OrdersByUser(request.Context(), services.GetLoggedInUser())

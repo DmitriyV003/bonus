@@ -17,6 +17,7 @@ func NewUserBalanceHandler(balanceService interfaces.BalanceService) *UserBalanc
 	return &UserBalanceHandler{balanceService: balanceService}
 }
 
+// Handle Get authorized user balance
 func (h *UserBalanceHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		resource, err := h.balanceService.Balance(request.Context(), services.GetLoggedInUser())

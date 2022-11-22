@@ -20,6 +20,9 @@ func NewCreateOrderHandler(orderService interfaces.OrderService) *CreateOrderHan
 	}
 }
 
+// Handle Create order with valid given number
+// Order number check with Luhn algorithm
+// Available for authorized users
 func (h *CreateOrderHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		response, err := io.ReadAll(request.Body)

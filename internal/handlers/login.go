@@ -21,6 +21,7 @@ func NewLoginHandler(authService serviceinterfaces.AuthService) *LoginHandler {
 	}
 }
 
+// Handle Login user via credentials
 func (h LoginHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		var loginRequest requests.LoginRequest

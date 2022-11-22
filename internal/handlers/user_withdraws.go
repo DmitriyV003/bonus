@@ -20,6 +20,7 @@ func NewUserWithdawsHandler(us interfaces.UserService) *UserWithdawsHandler {
 	}
 }
 
+// Handle Get all user withdrawals
 func (h *UserWithdawsHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		payments, err := h.userService.AllWithdrawsByUser(request.Context(), services.GetLoggedInUser())

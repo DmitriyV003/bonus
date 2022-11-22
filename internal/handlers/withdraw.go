@@ -20,6 +20,8 @@ func NewWithdrawHandler(userService interfaces.UserService) *WithdrawHandler {
 	}
 }
 
+// Handle Withdraw money for order with valid number
+// Order number checks with Luhn algorithm
 func (h *WithdrawHandler) Handle() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		var withdrawReq requests.WithdrawRequest

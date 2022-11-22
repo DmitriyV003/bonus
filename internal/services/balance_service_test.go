@@ -9,6 +9,7 @@ import (
 	"github.com/DmitriyV003/bonus/internal/models"
 	"github.com/go-playground/assert/v2"
 	"github.com/golang/mock/gomock"
+	"github.com/rs/zerolog/log"
 )
 
 func TestBalanceService_Accrual(t *testing.T) {
@@ -124,5 +125,69 @@ func TestBalanceService_Withdraw(t *testing.T) {
 
 			assert.Equal(t, tt.wantBalance, tt.args.user.Balance)
 		})
+	}
+}
+
+func accrual(ctx context.Context, payment *models.Payment, user *models.User) error {
+	balance := user.Balance
+	user.Balance = balance + payment.Amount
+
+	return nil
+}
+
+func withdraw(ctx context.Context, payment *models.Payment, user *models.User) error {
+	balance := user.Balance
+	user.Balance = balance - payment.Amount
+
+	return nil
+}
+
+func ExampleBalanceService_Accrual() {
+	payment := models.Payment{
+		ID:              1,
+		Type:            models.AccrualType,
+		TransactionType: models.DEBIT,
+		OrderNumber:     "424242",
+		Amount:          50000,
+		User:            nil,
+		CreatedAt:       time.Time{},
+		UpdatedAt:       nil,
+	}
+	user := models.User{
+		ID:        1,
+		Login:     "user",
+		Password:  "password",
+		Balance:   60000,
+		CreatedAt: time.Time{},
+		UpdatedAt: nil,
+	}
+	err := accrual(context.Background(), &payment, &user)
+	if err != nil {
+		log.Error().Msg("error")
+	}
+}
+
+func ExampleBalanceService_Withdraw() {
+	payment := models.Payment{
+		ID:              1,
+		Type:            models.AccrualType,
+		TransactionType: models.DEBIT,
+		OrderNumber:     "424242",
+		Amount:          50000,
+		User:            nil,
+		CreatedAt:       time.Time{},
+		UpdatedAt:       nil,
+	}
+	user := models.User{
+		ID:        1,
+		Login:     "user",
+		Password:  "password",
+		Balance:   60000,
+		CreatedAt: time.Time{},
+		UpdatedAt: nil,
+	}
+	err := accrual(context.Background(), &payment, &user)
+	if err != nil {
+		log.Error().Msg("error")
 	}
 }
